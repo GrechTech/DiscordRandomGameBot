@@ -25,12 +25,13 @@ class Console:
 
     def GetMessage(self):
         Index = round(random() * self.size)
+        #WIP
         #Put additional info in expandabled test [[]]
         pass
 
 
 def GetConsoles():
-    #Retrieve consoles from ConsoleList.csv
+    #Retrieve consoles from Data folder
     pass
 
 bot = commands.Bot(command_prefix="!")
