@@ -1,4 +1,4 @@
-
+from random import random 
 from discord.ext import commands
 TOKEN = "INSERT-TOKEN"
 
@@ -6,18 +6,31 @@ CONFIG_CSV_DELIM = ','
 CONSOLE_CSV_DELIM = '>'
 
 ConsoleList = []
+class Response:
+    def __init__(self, title, developer, publisher, year, genre, score, rating):
+        self.title = title
+        self.developer = developer
+        self.publisher = publisher
+        self.year = year
+        self.genre = genre
+        self.score = score
+        self.rating = rating
 
 class Console:
-    def __init__(self, name, fileName, size):
+    def __init__(self, name, fileName, size, ratingsOn = False):
         self.name = name
         self.fileName = fileName
         self.size = size
-    
-    def GetMessage():
+        self.ratingsOn = ratingsOn
+
+    def GetMessage(self):
+        Index = round(random() * self.size)
+        #Put additional info in expandabled test [[]]
         pass
 
 
 def GetConsoles():
+    #Retrieve consoles from ConsoleList.csv
     pass
 
 bot = commands.Bot(command_prefix="!")
