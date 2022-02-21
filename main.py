@@ -6,7 +6,6 @@ from discord.ext import commands
 
 #Config constants
 TOKEN = "INSERT-TOKEN"
-CONFIG_CSV_DELIM = ','
 CONSOLE_CSV_DELIM = '>'
 
 #Working directory
@@ -93,6 +92,8 @@ def GetConsoles():
                     LineNo += 1
 
                 if titleN != -1:
+                    print("New Console: ")
+                    print(entry.replace('.csv', ''))
                     ConsoleList.append(Console(entry, LineNo, titleN, developerN, publisherN, yearN, genreN, scoreN, ratingN ))
 
 
@@ -109,7 +110,7 @@ async def on_message(message):
         return
 
     for console in ConsoleList:
-        if console.name in message.content:
+        if console.name.replace('.csv', '') in message.content:
             print(f'{console.name} called')
             await message.channel.send(console.GetMessage())
 
@@ -117,4 +118,4 @@ async def on_message(message):
 
 #Start
 GetConsoles()
-bot.run(TOKEN)
+#bot.run(TOKEN)
