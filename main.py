@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 #Config constants
-TOKEN = "OTQ1MzkxMTgzNjc1Mzk2MTI3.YhPeJg.cmaAiuvW-dHGIXOdDTFgXRPwb40"
+TOKEN = ""
 CONSOLE_CSV_DELIM = '>'
 
 #Working directory
@@ -15,10 +15,11 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 #List of active consoles
 ConsoleList = []
+lastConsole = ""
 
 #Directly access single line of CSV file
 def get_csv_line(path, line_number):
-    with open(path) as f:
+    with open(path,encoding='utf8') as f:
         return next(itertools.islice(csv.reader(f), line_number, None))
 
 #Data class for a console message response
@@ -34,6 +35,8 @@ class Response:
 
 #Data class for a console database item
 class Console:
+    lastEmbed = discord.Embed()
+
     def __init__(self, name, size, title, developer, publisher, year, genre, score, rating):
         self.name = name
         self.size = size
@@ -75,7 +78,8 @@ class Console:
         #Create wikipedia URL
         MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_')
         #Create message body
-        embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        self.lastEmbed = discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        embed=discord.Embed(title=MessageTitle, url=MessageURL, color=0xFF1694)
         print(Index)
         return embed
 
@@ -86,7 +90,7 @@ def GetConsoles():
     for entry in os.listdir(dataPath):
         itemPath = os.path.join(dataPath, entry)
         if os.path.isfile(itemPath):
-            with open(itemPath, newline='') as csvfile:
+            with open(itemPath,encoding='utf8', newline='') as csvfile:
                 dbreader = csv.reader(csvfile, delimiter=CONSOLE_CSV_DELIM, quotechar='|',skipinitialspace=True)
                 LineNo = 0
 
@@ -125,8 +129,13 @@ def GetConsoles():
                     print(entry.replace('.csv', ''))
                     ConsoleList.append(Console(entry, LineNo, titleN, developerN, publisherN, yearN, genreN, scoreN, ratingN ))
 
-
 #Discord functionality
+def check_reply(message):
+    print(message.reference)
+    if message.reference is not None and message.is_system :
+        return True
+    return False
+
 bot = commands.Bot(command_prefix="!")
 
 @bot.event
@@ -135,13 +144,25 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    global lastConsole
     if message.author == bot.user: 
         return
 
-    for console in ConsoleList:
-        if console.name.replace('.csv', '').lower() in message.content.lower():
-            print(f'{console.name} called')
-            await message.channel.send(embed=console.GetMessage())
+    if check_reply(message):
+        print('reply')
+        if 'detail' in message.content.lower():
+            print('reply detail')
+            for console in ConsoleList:
+                print(lastConsole)
+                print(console.name)
+                if console.name.replace('.csv', '').lower() in lastConsole.replace('.csv', '').lower():
+                    await message.channel.send(embed=console.lastEmbed,mention_author=False)
+    else:
+        for console in ConsoleList:
+            if console.name.replace('.csv', '').lower() in message.content.lower():
+                print(f'{console.name} called')
+                lastConsole = console.name
+                await message.channel.send(embed=console.GetMessage())
 
     await bot.process_commands(message)
 
