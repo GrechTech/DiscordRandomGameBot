@@ -22,6 +22,8 @@ Add your token and run
 
 Trigger a command by typing the name of one of the consoles (CSV files)
 
+Click the games title hyperlink to go to the wikipedia page (If one exists)
+
 Get more information for the most recent game by replying to the message with a response containing the word "detail"/"details"
 
 
