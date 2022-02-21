@@ -2,7 +2,6 @@ import itertools
 import os 
 import csv
 from random import random
-from tkinter.ttk import Separator 
 import discord
 from discord.ext import commands
 
@@ -51,7 +50,6 @@ class Console:
         elif Index > self.size:
             Index = self.size
 
-        #WIP
         n = 0
         MessageTitle = ""
         MessageDesc = ""
@@ -151,12 +149,8 @@ async def on_message(message):
         return
 
     if check_reply(message):
-        print('reply')
         if 'detail' in message.content.lower():
-            print('reply detail')
             for console in ConsoleList:
-                print(lastConsole)
-                print(console.name)
                 if console.name.replace('.csv', '').lower() in lastConsole.replace('.csv', '').lower():
                     await message.channel.send(embed=console.lastEmbed,mention_author=False)
     else:
