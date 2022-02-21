@@ -60,7 +60,7 @@ class Console:
             for item in line.split(CONSOLE_CSV_DELIM):
                 print(item)
                 if n == self.columns.title:
-                    MessageTitle = item
+                    MessageTitle = item.replace('(USA)','').replace('(Europe)','')
                 if n == self.columns.developer:
                     MessageDesc += ('Developer: ' + item + '\n')
                 if n == self.columns.publisher:
