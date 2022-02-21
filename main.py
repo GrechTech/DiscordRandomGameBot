@@ -1,12 +1,13 @@
 import itertools
 import os 
 import csv
-from random import random 
+from random import random
+from tkinter.ttk import Separator 
 import discord
 from discord.ext import commands
 
 #Config constants
-TOKEN = "INSERT-TOKEN"
+TOKEN = "OTQ1MzkxMTgzNjc1Mzk2MTI3.YhPeJg.cmaAiuvW-dHGIXOdDTFgXRPwb40"
 CONSOLE_CSV_DELIM = '>'
 
 #Working directory
@@ -50,30 +51,32 @@ class Console:
         #WIP
         n = 0
         MessageTitle = ""
-        MessageDesc = "[["
-        for item in get_csv_line(Index, itemPath):
-            if n == self.columns.title:
-                MessageTitle = item
-            if n == self.columns.developer:
-                MessageDesc += ('Developer: ' + item + '\n')
-            if n == self.columns.publisher:
-                MessageDesc += ('Publisher: ' + item + '\n')
-            if n == self.columns.year:
-                MessageDesc += ('Year: ' + item + '\n')
-            if n == self.columns.genre:
-                MessageDesc += ('Genre: ' + item + '\n')
-            if n == self.columns.score:
-                MessageDesc += ('Score: ' + item + '\n')
-            if n == self.columns.rating:
-                MessageDesc += ('Rating: ' + item + '\n')
-            n+=1
+        MessageDesc = ""
+        lines = get_csv_line(itemPath, Index)
+        for line in lines:
+            for item in line.split(CONSOLE_CSV_DELIM):
+                print(item)
+                if n == self.columns.title:
+                    MessageTitle = item
+                if n == self.columns.developer:
+                    MessageDesc += ('Developer: ' + item + '\n')
+                if n == self.columns.publisher:
+                    MessageDesc += ('Publisher: ' + item + '\n')
+                if n == self.columns.year:
+                    MessageDesc += ('Year: ' + item + '\n')
+                if n == self.columns.genre:
+                    MessageDesc += ('Genre: ' + item + '\n')
+                if n == self.columns.score:
+                    MessageDesc += ('Score: ' + item + '\n')
+                if n == self.columns.rating:
+                    MessageDesc += ('Rating: ' + item + '\n')
+                n+=1
         
-        ##Enclosure description
-        MessageDesc += ']]'
         #Create wikipedia URL
         MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_')
         #Create message body
         embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        print(Index)
         return embed
 
 #Function to retrieve list of valid console databases
@@ -96,8 +99,8 @@ def GetConsoles():
                 ratingN = -1
 
                 for line in dbreader:
+                    ItemNo = 0
                     for item in line: 
-                        ItemNo = 0
                         if LineNo == 0:
                             #If first line, check which column contains which headers
                             if item == 'title':
@@ -144,4 +147,4 @@ async def on_message(message):
 
 #Start
 GetConsoles()
-#bot.run(TOKEN)
+bot.run(TOKEN)
