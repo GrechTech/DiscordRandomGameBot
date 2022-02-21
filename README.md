@@ -8,8 +8,9 @@ py -3 -m venv .venv
 pip install -r requirements.txt
 
 # Add Databases
-UTF-8 encoding
-CSV file with headers corresponding to the examples, seperated with '>'
-
+CSV files with headers corresponding to the examples, seperated with '>', using UTF-8 encoding
+Command name to trigger a response is the name of the csv file
 # Use
 Add your token and run
+Trigger a command by typing the name of one of the consoles (CSV files)
+Get more information for the most recent game by replying to the message with a response containing the word "detail"/"details"
