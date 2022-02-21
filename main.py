@@ -20,7 +20,7 @@ lastConsole = ""
 #Directly access single line of CSV file
 def get_csv_line(path, line_number):
     with open(path,encoding='utf8') as f:
-        return next(itertools.islice(csv.reader(f), line_number, None, delimiter=CONSOLE_CSV_DELIM ))
+        return next(itertools.islice(csv.reader(f, delimiter=CONSOLE_CSV_DELIM ), line_number, None))
 
 #Data class for a console message response
 class Response:
