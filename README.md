@@ -17,3 +17,5 @@ Command name to trigger a response is the name of the csv file
 Add your token and run
 Trigger a command by typing the name of one of the consoles (CSV files)
 Get more information for the most recent game by replying to the message with a response containing the word "detail"/"details"
+
+![alt text](https://github.com/GrechTech/DiscordRandomGameBot/blob/main/example.png?raw=true)
