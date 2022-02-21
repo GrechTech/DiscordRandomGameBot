@@ -20,7 +20,7 @@ lastConsole = ""
 #Directly access single line of CSV file
 def get_csv_line(path, line_number):
     with open(path,encoding='utf8') as f:
-        return next(itertools.islice(csv.reader(f), line_number, None))
+        return next(itertools.islice(csv.reader(f), line_number, None, delimiter=CONSOLE_CSV_DELIM ))
 
 #Data class for a console message response
 class Response:
@@ -56,27 +56,26 @@ class Console:
         MessageTitle = ""
         MessageDesc = ""
         MessageScore = ""
-        lines = get_csv_line(itemPath, Index)
-        for line in lines:
-            for item in line.split(CONSOLE_CSV_DELIM):
-                print(item)
-                if item != "":
-                    if n == self.columns.title:
-                        MessageTitle = item.replace('(USA)','').replace('(Europe)','')
-                    if n == self.columns.developer:
-                        MessageDesc += ('Developer: ' + item + '\n')
-                    if n == self.columns.publisher:
-                        MessageDesc += ('Publisher: ' + item + '\n')
-                    if n == self.columns.year:
-                        MessageDesc += ('Year: ' + item + '\n')
-                    if n == self.columns.genre:
-                        MessageDesc += ('Genre: ' + item + '\n')
-                    if n == self.columns.score:
-                        MessageDesc += ('Score: ' + item + '\n')
-                        MessageScore = ('Score: ' + item + '\n')
-                    if n == self.columns.rating:
-                        MessageDesc += ('Rating: ' + item + '\n')
-                    n+=1
+        line = get_csv_line(itemPath, Index)
+        for item in lines:
+            print(item)
+            if item != "":
+                if n == self.columns.title:
+                    MessageTitle = item.replace('(USA)','').replace('(Europe)','')
+                if n == self.columns.developer:
+                    MessageDesc += ('Developer: ' + item + '\n')
+                if n == self.columns.publisher:
+                    MessageDesc += ('Publisher: ' + item + '\n')
+                if n == self.columns.year:
+                    MessageDesc += ('Year: ' + item + '\n')
+                if n == self.columns.genre:
+                    MessageDesc += ('Genre: ' + item + '\n')
+                if n == self.columns.score:
+                    MessageDesc += ('Score: ' + item + '\n')
+                    MessageScore = ('Score: ' + item + '\n')
+                if n == self.columns.rating:
+                    MessageDesc += ('Rating: ' + item + '\n')
+                n+=1
         
         #Create wikipedia URL
         MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_').replace('_-_',':_')
