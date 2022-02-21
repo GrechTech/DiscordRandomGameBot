@@ -2,6 +2,7 @@ import itertools
 import os 
 import csv
 from random import random 
+import discord
 from discord.ext import commands
 
 #Config constants
@@ -47,8 +48,33 @@ class Console:
             Index = self.size
 
         #WIP
-        get_csv_line(Index, itemPath)
-        #Put additional info in expandabled test [[]]
+        n = 0
+        MessageTitle = ""
+        MessageDesc = "[["
+        for item in get_csv_line(Index, itemPath):
+            if n == self.columns.title:
+                MessageTitle = item
+            if n == self.columns.developer:
+                MessageDesc += ('Developer: ' + item + '\n')
+            if n == self.columns.publisher:
+                MessageDesc += ('Publisher: ' + item + '\n')
+            if n == self.columns.year:
+                MessageDesc += ('Year: ' + item + '\n')
+            if n == self.columns.genre:
+                MessageDesc += ('Genre: ' + item + '\n')
+            if n == self.columns.score:
+                MessageDesc += ('Score: ' + item + '\n')
+            if n == self.columns.rating:
+                MessageDesc += ('Rating: ' + item + '\n')
+            n+=1
+        
+        ##Enclosure description
+        MessageDesc += ']]'
+        #Create wikipedia URL
+        MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_')
+        #Create message body
+        embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        return embed
 
 #Function to retrieve list of valid console databases
 def GetConsoles():
@@ -110,9 +136,9 @@ async def on_message(message):
         return
 
     for console in ConsoleList:
-        if console.name.replace('.csv', '') in message.content:
+        if console.name.replace('.csv', '').lower() in message.content.lower():
             print(f'{console.name} called')
-            await message.channel.send(console.GetMessage())
+            await message.channel.send(embed=console.GetMessage())
 
     await bot.process_commands(message)
 
