@@ -57,7 +57,7 @@ class Console:
         MessageDesc = ""
         MessageScore = ""
         line = get_csv_line(itemPath, Index)
-        for item in lines:
+        for item in line:
             print(item)
             if item != "":
                 if n == self.columns.title:
