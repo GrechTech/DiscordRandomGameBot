@@ -55,31 +55,34 @@ class Console:
         n = 0
         MessageTitle = ""
         MessageDesc = ""
+        MessageScore = ""
         lines = get_csv_line(itemPath, Index)
         for line in lines:
             for item in line.split(CONSOLE_CSV_DELIM):
                 print(item)
-                if n == self.columns.title:
-                    MessageTitle = item.replace('(USA)','').replace('(Europe)','')
-                if n == self.columns.developer:
-                    MessageDesc += ('Developer: ' + item + '\n')
-                if n == self.columns.publisher:
-                    MessageDesc += ('Publisher: ' + item + '\n')
-                if n == self.columns.year:
-                    MessageDesc += ('Year: ' + item + '\n')
-                if n == self.columns.genre:
-                    MessageDesc += ('Genre: ' + item + '\n')
-                if n == self.columns.score:
-                    MessageDesc += ('Score: ' + item + '\n')
-                if n == self.columns.rating:
-                    MessageDesc += ('Rating: ' + item + '\n')
-                n+=1
+                if item != "":
+                    if n == self.columns.title:
+                        MessageTitle = item.replace('(USA)','').replace('(Europe)','')
+                    if n == self.columns.developer:
+                        MessageDesc += ('Developer: ' + item + '\n')
+                    if n == self.columns.publisher:
+                        MessageDesc += ('Publisher: ' + item + '\n')
+                    if n == self.columns.year:
+                        MessageDesc += ('Year: ' + item + '\n')
+                    if n == self.columns.genre:
+                        MessageDesc += ('Genre: ' + item + '\n')
+                    if n == self.columns.score:
+                        MessageDesc += ('Score: ' + item + '\n')
+                        MessageScore = ('Score: ' + item + '\n')
+                    if n == self.columns.rating:
+                        MessageDesc += ('Rating: ' + item + '\n')
+                    n+=1
         
         #Create wikipedia URL
-        MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_')
+        MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_').replace('_-_',':_')
         #Create message body
         self.lastEmbed = discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
-        embed=discord.Embed(title=MessageTitle, url=MessageURL, color=0xFF1694)
+        embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageScore, color=0xFF1694)
         print(Index)
         return embed
 
