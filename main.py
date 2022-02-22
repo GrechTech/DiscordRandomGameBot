@@ -156,7 +156,7 @@ async def on_message(message):
                     await message.channel.send(embed=console.lastEmbed,mention_author=False)
     else:
         for console in ConsoleList:
-            if console.name.replace('.csv', '').lower() in message.content.lower():
+            if ((' ' + console.name.replace('.csv', '').lower()+ ' ') in message.content.lower()) or (message.lower().startswith(console.name.replace('.csv', '').lower())):
                 print(f'{console.name} called')
                 lastConsole = console.name
                 await message.channel.send(embed=console.GetMessage())
