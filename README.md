@@ -28,3 +28,8 @@ Get more information for the most recent game by replying to the message with a 
 
 
 ![alt text](https://github.com/GrechTech/DiscordRandomGameBot/blob/main/example.png?raw=true)
+
+
+# TODO:
+Command to list all consoles
+Include description in detail
