@@ -61,7 +61,7 @@ class Console:
             if item != "":
                 if n == self.columns.title:
                     MessageTitle = re.sub(r"\([^()]*\)", "", item)
-                    if MessageTitle.endswith(", The"):
+                    if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
                 if n == self.columns.developer:
                     MessageDesc += ('Developer: ' + item + '\n')
