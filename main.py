@@ -62,6 +62,7 @@ class Console:
                 if n == self.columns.title:
                     MessageTitle = re.sub(r"\([^()]*\)", "", item)
                     MessageTitle = MessageTitle.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3", "").replace("Disk 4", "").replace("Side A", "").replace("Side B", "")
+                    MessageTitle = MessageTitle.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3", "").replace("Disc 4", "").replace("Side C", "").replace("SideD", "")
                     if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
                 if n == self.columns.developer:
