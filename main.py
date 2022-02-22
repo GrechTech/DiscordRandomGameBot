@@ -1,3 +1,4 @@
+import re
 import itertools
 import os 
 import csv
@@ -59,7 +60,7 @@ class Console:
             print(item)
             if item != "":
                 if n == self.columns.title:
-                    MessageTitle = item.replace('(USA)','').replace('(Europe)','').replace('(Australia)','').replace('(Japan)','').replace('(Translated_En)','')
+                    MessageTitle = re.sub(r"\([^()]*\)", "", item)
                 if n == self.columns.developer:
                     MessageDesc += ('Developer: ' + item + '\n')
                 if n == self.columns.publisher:
