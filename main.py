@@ -59,7 +59,7 @@ class Console:
             print(item)
             if item != "":
                 if n == self.columns.title:
-                    MessageTitle = item.replace('(USA)','').replace('(Europe)','').replace('(Australia)','')
+                    MessageTitle = item.replace('(USA)','').replace('(Europe)','').replace('(Australia)','').replace('(Japan)','').replace('(Translated_En)','')
                 if n == self.columns.developer:
                     MessageDesc += ('Developer: ' + item + '\n')
                 if n == self.columns.publisher:
