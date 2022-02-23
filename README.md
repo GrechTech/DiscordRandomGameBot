@@ -32,4 +32,7 @@ Get more information for the most recent game by replying to the message with a 
 
 # TODO:
 Command to list all consoles
+
 Include description in detail
+
+Detail to be edited into original message upon a reaction
