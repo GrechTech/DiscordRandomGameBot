@@ -136,8 +136,8 @@ def GetConsoles():
 
 #Discord functionality
 def check_reply(message):
-    print(message.reference)
     if message.reference is not None and message.is_system :
+        print(message.reference)
         return True
     return False
 
