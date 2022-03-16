@@ -161,8 +161,9 @@ async def on_message(message):
     else:
         for console in ConsoleList:
             if ((' ' + console.name.replace('.csv', '').lower()+ ' ') in message.content.lower()) \
-            or (message.content.lower().startswith(console.name.replace('.csv', '').lower())) \
-            or (message.content.lower().endswith(console.name.replace('.csv', '').lower())):
+            or (message.content.lower().startswith(console.name.replace('.csv', '').lower() + " ")) \
+            or (message.content.lower().endswith(" " + console.name.replace('.csv', '').lower())) \
+            or (message.content.lower() == console.name.replace('.csv', '').lower()):
                 print(f'{console.name} called')
                 lastConsole = console.name
                 await message.channel.send(embed=console.GetMessage())
