@@ -190,11 +190,12 @@ async def on_message(message):
                 # Check each line of file
                 with open(URLS_PATH, 'r') as file:
                     for line in file:
-                        date = int(line.split('>')[0])
-                        lineurl = line.split('>')[1].rstrip()
+                        clean_line = line.rstrip()
+                        date = int(clean_line.split('>')[0])
+                        lineurl = clean_line.split('>')[1]
                         # Check if message within last 3 days
                         if (int(time.time()) - date) < (86400 * 3):
-                            newlines.append(line) # Create new list with in date messages
+                            newlines.append(clean_line) # Create new list with in date messages
                             if lineurl == clean_url: # If message a Snail
                                 snail = True        
 
