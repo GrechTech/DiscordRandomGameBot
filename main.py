@@ -15,6 +15,14 @@ CONSOLE_CSV_DELIM = '>'
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
 
+# Auto Snail find URL
+def FindURL(string):
+    # findall() has been used 
+    # with valid conditions for urls in string
+    regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+    url = re.findall(regex,string)      
+    return [x[0] for x in url]
+
 #List of active consoles
 ConsoleList = []
 lastConsole = ""
@@ -172,11 +180,10 @@ async def on_message(message):
                 return
         
         # Autosnail
-        regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-        urls = re.findall(regex,message)      
+        urls = FindURL(message.content)
         # Check message for url
-        if urls.count > 0:
-            for url in url:
+        if len(urls) > 0:
+            for url in urls:
                 snail = False
                 clean_url = url.split("?")[0].lower().rstrip()
                 newlines = []
