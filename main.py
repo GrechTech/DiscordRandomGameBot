@@ -5,6 +5,7 @@ import csv
 from random import random
 import discord
 from discord.ext import commands
+import time
 
 #Config constants
 TOKEN = ""
@@ -12,6 +13,7 @@ CONSOLE_CSV_DELIM = '>'
 
 #Working directory
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
 
 #List of active consoles
 ConsoleList = []
@@ -167,6 +169,44 @@ async def on_message(message):
                 print(f'{console.name} called')
                 lastConsole = console.name
                 await message.channel.send(embed=console.GetMessage())
+                return
+        
+        # Autosnail
+        regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+        urls = re.findall(regex,message)      
+        # Check message for url
+        if urls.count > 0:
+            for url in url:
+                snail = False
+                clean_url = url.split("?")[0].lower().rstrip()
+                newlines = []
+                # Check each line of file
+                with open(URLS_PATH, 'r') as file:
+                    for line in file:
+                        date = int(line.split('>')[0])
+                        lineurl = line.split('>')[1].rstrip()
+                        # Check if message within last 3 days
+                        if (int(time.time()) - date) < (86400 * 3):
+                            newlines.append(line) # Create new list with in date messages
+                            if lineurl == clean_url: # If message a Snail
+                                snail = True        
+
+                # Create new file with only in date messages   
+                with open(URLS_PATH, 'w') as file:
+                    for item in newlines:
+                        file.write("%s\n" % item) 
+
+                # Snail if snailable, else add to list
+                if snail:
+                    emoji = '\U0001F40C' #Snail
+                    await message.add_reaction(emoji)
+                else:
+                    with open(URLS_PATH, 'a') as file:
+                        newline = str(int(time.time())) + '>' + clean_url + '\n'
+                        file.write(newline)
+
+
+
 
     await bot.process_commands(message)
 
