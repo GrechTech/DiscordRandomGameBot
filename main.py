@@ -207,6 +207,8 @@ async def on_message(message):
                 # Snail if snailable, else add to list
                 if snail:
                     emoji = '\U0001F40C' #Snail
+                    if message.author.id == 178130280400420864:
+                        emoji = ":snailuri:"
                     await message.add_reaction(emoji)
                 else:
                     with open(URLS_PATH, 'a') as file:
