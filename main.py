@@ -189,7 +189,7 @@ async def on_message(message):
                 clean_url = url.rstrip().lower()
                 ToCheck = ['.png', '.gif', '.jpg','.jpeg', 'discordapp','tenor']
                 if not [ele for ele in ToCheck if(ele in clean_url)]:
-                    if clean_url.contains("youtube.com/watch?v="):
+                    if "youtube.com/watch?v=" in clean_url:
                         clean_url = clean_url.replace("youtube.com/watch?v=","youtu.be/")
                     
                     clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
