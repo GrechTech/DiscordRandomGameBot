@@ -159,6 +159,15 @@ async def on_ready():
     print(f'{bot.user} succesfully logged in!')
 
 @bot.event
+async def on_message_delete(message):
+    if (not message.author.bot) and ('\U0001F40C' or ':snailuri:' in message.reactions):
+        embed = discord.Embed(title="Snailed Message Deleted")
+        embed.add_field(name="Member: ", value=message.author.mention, inline=False)
+        embed.add_field(name="Message: ", value=message.content, inline=True)
+
+        await message.channel.send(embed=embed)
+
+@bot.event
 async def on_message(message):
     global lastConsole
     if message.author == bot.user: 
