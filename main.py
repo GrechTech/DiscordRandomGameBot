@@ -168,17 +168,22 @@ async def on_message_delete(message):
         await message.channel.send(embed=embed)
 
 @bot.event
+async def on_reaction_add(reaction, user):
+    global lastConsole
+    if user != bot.user:
+        if str(reaction.emoji) == "❓":
+            for console in ConsoleList:
+                if console.name.replace('.csv', '').lower() in lastConsole.replace('.csv', '').lower():
+                    await reaction.message.edit(embed=console.lastEmbed)
+            
+
+@bot.event
 async def on_message(message):
     global lastConsole
     if message.author == bot.user: 
         return
 
-    if check_reply(message):
-        if 'detail' in message.content.lower():
-            for console in ConsoleList:
-                if console.name.replace('.csv', '').lower() in lastConsole.replace('.csv', '').lower():
-                    await message.channel.send(embed=console.lastEmbed,mention_author=False)
-    else:
+    if not check_reply(message):
         for console in ConsoleList:
             if ((' ' + console.name.replace('.csv', '').lower()+ ' ') in message.content.lower()) \
             or (message.content.lower().startswith(console.name.replace('.csv', '').lower() + " ")) \
