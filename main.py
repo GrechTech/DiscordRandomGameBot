@@ -191,7 +191,7 @@ async def on_message(message):
                     if clean_url.contains("youtube.com/watch?v="):
                         clean_url = clean_url.replace("youtube.com/watch?v=","youtu.be/")
                     
-                    clean_url = clean_url.split("?")[0].lower()  
+                    clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
                     newlines = []
                     # Check each line of file
                     
