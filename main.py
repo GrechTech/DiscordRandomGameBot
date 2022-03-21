@@ -1,3 +1,4 @@
+from distutils.command.clean import clean
 import re
 import itertools
 import os 
@@ -180,42 +181,46 @@ async def on_message(message):
                 return
         
         # Autosnail
-        urls = FindURL(message.content)
-        # Check message for url
-        if len(urls) > 0:
-            for url in urls:
-                snail = False
-                clean_url = url.split("?")[0].lower().rstrip()
-                newlines = []
-                # Check each line of file
-                with open(URLS_PATH, 'r') as file:
-                    for line in file:
-                        clean_line = line.rstrip()
-                        date = int(clean_line.split('>')[0])
-                        lineurl = clean_line.split('>')[1]
-                        # Check if message within last 3 days
-                        if (int(time.time()) - date) < (86400 * 3):
-                            newlines.append(clean_line) # Create new list with in date messages
-                            if lineurl == clean_url: # If message a Snail
-                                snail = True        
+        if not message.embeds:
+            urls = FindURL(message.content)
+            # Check message for url
+            if len(urls) > 0:
+                for url in urls:
+                    snail = False
+                    clean_url = url.rstrip().lower()
+                    if clean_url.contains("youtube.com/watch?v="):
+                        clean_url = clean_url.replace("youtube.com/watch?v=","youtu.be/")
+                    
+                    clean_url = clean_url.split("?")[0].lower()  
+                    newlines = []
+                    # Check each line of file
+                    
+                    with open(URLS_PATH, 'r') as file:
+                        for line in file:
+                            clean_line = line.rstrip()
+                            date = int(clean_line.split('>')[0])
+                            lineurl = clean_line.split('>')[1]
+                            # Check if message within last 3 days
+                            if (int(time.time()) - date) < (86400 * 3):
+                                newlines.append(clean_line) # Create new list with in date messages
+                                if lineurl == clean_url: # If message a Snail
+                                    snail = True        
 
-                # Create new file with only in date messages   
-                with open(URLS_PATH, 'w') as file:
-                    for item in newlines:
-                        file.write("%s\n" % item) 
+                    # Create new file with only in date messages   
+                    with open(URLS_PATH, 'w') as file:
+                        for item in newlines:
+                            file.write("%s\n" % item) 
 
-                # Snail if snailable, else add to list
-                if snail:
-                    emoji = '\U0001F40C' #Snail
-                    if message.author.id == 178130280400420864:
-                        emoji = ":snailuri:"
-                    await message.add_reaction(emoji)
-                else:
-                    with open(URLS_PATH, 'a') as file:
-                        newline = str(int(time.time())) + '>' + clean_url + '\n'
-                        file.write(newline)
-
-
+                    # Snail if snailable, else add to list
+                    if snail:
+                        emoji = '\U0001F40C' #Snail
+                        if message.author.id == 178130280400420864: #Jaysnail
+                            emoji = ":snailuri:"
+                        await message.add_reaction(emoji)
+                    else:
+                        with open(URLS_PATH, 'a') as file:
+                            newline = str(int(time.time())) + '>' + clean_url + '\n'
+                            file.write(newline)
 
 
     await bot.process_commands(message)
