@@ -78,6 +78,12 @@ class Console:
                     MessageTitle = re.sub(r"\([^()]*\)", "", item)
                     MessageTitle = MessageTitle.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3", "").replace("Disk 4", "").replace("Side A", "").replace("Side B", "")
                     MessageTitle = MessageTitle.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3", "").replace("Disc 4", "").replace("Side C", "").replace("Side D", "")
+                    MessageTitle = MessageTitle.replace("- Disk 1", "").replace("- Disk 2", "").replace("- Disk 3", "").replace("- Disk 4", "").replace("- Side A", "").replace("- Side B", "")
+                    MessageTitle = MessageTitle.replace("- Disc 1", "").replace("- Disc 2", "").replace("- Disc 3", "").replace("- Disc 4", "").replace("- Side C", "").replace("- Side D", "")
+                    MessageTitle = MessageTitle.replace("Disk1", "").replace("Disk2", "").replace("Disk3", "").replace("Disk4", "").replace("SideA", "").replace("SideB", "")
+                    MessageTitle = MessageTitle.replace("Disc1", "").replace("Disc2", "").replace("Disc3", "").replace("Disc4", "").replace("SideC", "").replace("SideD", "")
+                    MessageTitle = MessageTitle.replace("- Disk1", "").replace("- Disk2", "").replace("- Disk3", "").replace("- Disk4", "").replace("- SideA", "").replace("- SideB", "")
+                    MessageTitle = MessageTitle.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3", "").replace("- Disc4", "").replace("- SideC", "").replace("- SideD", "")
                     if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
                 if n == self.columns.developer:
@@ -98,8 +104,9 @@ class Console:
         
         #Create wikipedia URL
         MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_').replace('_-_',':_')
+        MessageTitleOutput = MessageTitle + " (" + self.name.replace('.csv', '').upper() + ")"
         #Create message body
-        embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        embed=discord.Embed(title=MessageTitleOutput, url=MessageURL, description=MessageDesc, color=0xFF1694)
         return embed
 
 
@@ -123,16 +130,21 @@ class Console:
                     MessageTitle = re.sub(r"\([^()]*\)", "", item)
                     MessageTitle = MessageTitle.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3", "").replace("Disk 4", "").replace("Side A", "").replace("Side B", "")
                     MessageTitle = MessageTitle.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3", "").replace("Disc 4", "").replace("Side C", "").replace("Side D", "")
+                    MessageTitle = MessageTitle.replace("- Disk 1", "").replace("- Disk 2", "").replace("- Disk 3", "").replace("- Disk 4", "").replace("- Side A", "").replace("- Side B", "")
+                    MessageTitle = MessageTitle.replace("- Disc 1", "").replace("- Disc 2", "").replace("- Disc 3", "").replace("- Disc 4", "").replace("- Side C", "").replace("- Side D", "")
                     MessageTitle = MessageTitle.replace("Disk1", "").replace("Disk2", "").replace("Disk3", "").replace("Disk4", "").replace("SideA", "").replace("SideB", "")
                     MessageTitle = MessageTitle.replace("Disc1", "").replace("Disc2", "").replace("Disc3", "").replace("Disc4", "").replace("SideC", "").replace("SideD", "")
+                    MessageTitle = MessageTitle.replace("- Disk1", "").replace("- Disk2", "").replace("- Disk3", "").replace("- Disk4", "").replace("- SideA", "").replace("- SideB", "")
+                    MessageTitle = MessageTitle.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3", "").replace("- Disc4", "").replace("- SideC", "").replace("- SideD", "")
                     if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
                 n+=1
         
         #Create wikipedia URL
         MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_').replace('_-_',':_')
+        MessageTitleOutput = MessageTitle + " (" + self.name.replace('.csv', '').upper() + ")"
         #Create message body
-        embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageScore, color=0xFF1694)
+        embed=discord.Embed(title=MessageTitleOutput, url=MessageURL, description=MessageScore, color=0xFF1694)
         print(Index)
         return embed
 
@@ -212,12 +224,15 @@ async def on_reaction_add(reaction, user):
     if user != bot.user:
         if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
             for console in ConsoleList:
-                if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title) != -1:
-                    await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title))
+                if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
+                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title) != -1:
+                        await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title))
+                        return
         elif str(reaction.emoji) == "❗" or str(reaction.emoji) == "❕":
             for console in ConsoleList:
-                if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title) != -1:
-                    await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title, True))
+                if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
+                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title) != -1:
+                        await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title, True))
             
 
 @bot.event
