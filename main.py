@@ -34,7 +34,7 @@ def get_csv_line(path, line_number):
 
 #GetCSV Row
 def find_csv_line(path,query):
-    with open(path, 'rt') as f:
+    with open(path, 'rt',encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=CONSOLE_CSV_DELIM)
         n = 0
         for row in reader:
@@ -47,7 +47,7 @@ def find_csv_line(path,query):
 
 #Data class for a console message response
 class Response:
-    def __init__(self, title, developer, publisher, year, genre, score, rating):
+    def __init__(self, title, developer, publisher, year, genre, score, rating, description):
         self.title = title
         self.developer = developer
         self.publisher = publisher
@@ -55,20 +55,21 @@ class Response:
         self.genre = genre
         self.score = score
         self.rating = rating
+        self.description = description
 
 #Data class for a console database item
 class Console:
-    def __init__(self, name, size, title, developer, publisher, year, genre, score, rating):
+    def __init__(self, name, size, title, developer, publisher, year, genre, score, rating, description):
         self.name = name
         self.size = size
-        self.columns = Response(title, developer, publisher, year, genre, score, rating)
+        self.columns = Response(title, developer, publisher, year, genre, score, rating, description)
 
-    def GetMessageDetails(self, Title):
+    def GetMessageDetails(self, Title, full = False):
         itemPath = os.path.join(os.path.join(DIR_PATH, 'Data/'), self.name)
         n = 0
         MessageTitle = ""
         MessageDesc = ""
-        index = find_csv_line(itemPath, Title)
+        index = find_csv_line(itemPath, Title) - 1
         line = get_csv_line(itemPath, index)
         for item in line:
             print(item)
@@ -91,6 +92,8 @@ class Console:
                     MessageDesc += ('Score: ' + item + '\n')
                 if n == self.columns.rating:
                     MessageDesc += ('Rating: ' + item + '\n')
+                if n == self.columns.description and full:
+                    MessageDesc += ('Description: ' + item + '\n')
                 n+=1
         
         #Create wikipedia URL
@@ -120,6 +123,8 @@ class Console:
                     MessageTitle = re.sub(r"\([^()]*\)", "", item)
                     MessageTitle = MessageTitle.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3", "").replace("Disk 4", "").replace("Side A", "").replace("Side B", "")
                     MessageTitle = MessageTitle.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3", "").replace("Disc 4", "").replace("Side C", "").replace("Side D", "")
+                    MessageTitle = MessageTitle.replace("Disk1", "").replace("Disk2", "").replace("Disk3", "").replace("Disk4", "").replace("SideA", "").replace("SideB", "")
+                    MessageTitle = MessageTitle.replace("Disc1", "").replace("Disc2", "").replace("Disc3", "").replace("Disc4", "").replace("SideC", "").replace("SideD", "")
                     if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
                 n+=1
@@ -127,7 +132,6 @@ class Console:
         #Create wikipedia URL
         MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_').replace('_-_',':_')
         #Create message body
-        self.lastEmbed = discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
         embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageScore, color=0xFF1694)
         print(Index)
         return embed
@@ -150,6 +154,7 @@ def GetConsoles():
                 genreN = -1
                 scoreN = -1
                 ratingN = -1
+                descriptionN = -1
 
                 for line in dbreader:
                     ItemNo = 0
@@ -170,13 +175,15 @@ def GetConsoles():
                                 scoreN = ItemNo
                             if item == 'rating':
                                 ratingN = ItemNo
+                            if item == 'description':
+                                descriptionN = ItemNo
                         ItemNo += 1
                     LineNo += 1
 
                 if titleN != -1:
                     print("New Console: ")
                     print(entry.replace('.csv', ''))
-                    ConsoleList.append(Console(entry, LineNo, titleN, developerN, publisherN, yearN, genreN, scoreN, ratingN ))
+                    ConsoleList.append(Console(entry, LineNo, titleN, developerN, publisherN, yearN, genreN, scoreN, ratingN,descriptionN ))
 
 #Discord functionality
 def check_reply(message):
@@ -203,10 +210,14 @@ async def on_message_delete(message):
 @bot.event
 async def on_reaction_add(reaction, user):
     if user != bot.user:
-        if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔":
+        if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
             for console in ConsoleList:
-                if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embed.title) != -1:
-                    await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embed.title))
+                if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title) != -1:
+                    await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title))
+        elif str(reaction.emoji) == "❗" or str(reaction.emoji) == "❕":
+            for console in ConsoleList:
+                if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title) != -1:
+                    await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title, True))
             
 
 @bot.event
