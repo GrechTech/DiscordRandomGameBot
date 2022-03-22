@@ -70,6 +70,8 @@ class Console:
         MessageTitle = ""
         MessageDesc = ""
         index = find_csv_line(itemPath, Title) - 1
+        if index < 0:
+            return
         line = get_csv_line(itemPath, index)
         for item in line:
             print(item)
@@ -86,6 +88,7 @@ class Console:
                     MessageTitle = MessageTitle.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3", "").replace("- Disc4", "").replace("- SideC", "").replace("- SideD", "")
                     if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
+                    MessageTitle = MessageTitle.rstrip()
                 if n == self.columns.developer:
                     MessageDesc += ('Developer: ' + item + '\n')
                 if n == self.columns.publisher:
@@ -138,6 +141,7 @@ class Console:
                     MessageTitle = MessageTitle.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3", "").replace("- Disc4", "").replace("- SideC", "").replace("- SideD", "")
                     if ", The" in MessageTitle:
                         MessageTitle = "The " + MessageTitle.replace(", The","")
+                    MessageTitle = MessageTitle.rstrip()
                 n+=1
         
         #Create wikipedia URL
@@ -225,14 +229,17 @@ async def on_reaction_add(reaction, user):
         if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
             for console in ConsoleList:
                 if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
-                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','')) != -1:
-                        await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title))
+                    title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
+                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),title) != -1:
+                        await reaction.message.edit(embed=console.GetMessageDetails(title))
                         return
         elif str(reaction.emoji) == "❗" or str(reaction.emoji) == "❕":
             for console in ConsoleList:
                 if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
-                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','')) != -1:
-                        await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embeds[0].title, True))
+                    title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
+                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),title) != -1:
+                        await reaction.message.edit(embed=console.GetMessageDetails(title, True))
+                        return
             
 
 @bot.event
