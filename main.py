@@ -26,12 +26,24 @@ def FindURL(string):
 
 #List of active consoles
 ConsoleList = []
-lastConsole = ""
 
 #Directly access single line of CSV file
 def get_csv_line(path, line_number):
     with open(path,encoding='utf8') as f:
         return next(itertools.islice(csv.reader(f, delimiter=CONSOLE_CSV_DELIM ), line_number, None))
+
+#GetCSV Row
+def find_csv_line(path,query):
+    with open(path, 'rt') as f:
+        reader = csv.reader(f, delimiter=CONSOLE_CSV_DELIM)
+        n = 0
+        for row in reader:
+            n += 1
+            if ", The" in row:
+                MessageTitle = "The " + MessageTitle.replace(", The","")
+            if query in row:
+                return n
+        return -1
 
 #Data class for a console message response
 class Response:
@@ -46,27 +58,18 @@ class Response:
 
 #Data class for a console database item
 class Console:
-    lastEmbed = discord.Embed()
-
     def __init__(self, name, size, title, developer, publisher, year, genre, score, rating):
         self.name = name
         self.size = size
         self.columns = Response(title, developer, publisher, year, genre, score, rating)
 
-    def GetMessage(self):
+    def GetMessageDetails(self, Title):
         itemPath = os.path.join(os.path.join(DIR_PATH, 'Data/'), self.name)
-        Index = round(random() * self.size)
-
-        if Index < 1:
-            Index = 1
-        elif Index > self.size:
-            Index = self.size
-
         n = 0
         MessageTitle = ""
         MessageDesc = ""
-        MessageScore = ""
-        line = get_csv_line(itemPath, Index)
+        index = find_csv_line(itemPath, Title)
+        line = get_csv_line(itemPath, index)
         for item in line:
             print(item)
             if item != "":
@@ -86,9 +89,39 @@ class Console:
                     MessageDesc += ('Genre: ' + item + '\n')
                 if n == self.columns.score:
                     MessageDesc += ('Score: ' + item + '\n')
-                    MessageScore = ('Score: ' + item + '\n')
                 if n == self.columns.rating:
                     MessageDesc += ('Rating: ' + item + '\n')
+                n+=1
+        
+        #Create wikipedia URL
+        MessageURL = "https://en.wikipedia.org/wiki/" + MessageTitle.replace(' ','_').replace('_-_',':_')
+        #Create message body
+        embed=discord.Embed(title=MessageTitle, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        return embed
+
+
+    def GetMessage(self):
+        itemPath = os.path.join(os.path.join(DIR_PATH, 'Data/'), self.name)
+        Index = round(random() * self.size)
+
+        if Index < 1:
+            Index = 1
+        elif Index > self.size:
+            Index = self.size
+
+        n = 0
+        MessageTitle = ""
+        MessageScore = ""
+        line = get_csv_line(itemPath, Index)
+        for item in line:
+            print(item)
+            if item != "":
+                if n == self.columns.title:
+                    MessageTitle = re.sub(r"\([^()]*\)", "", item)
+                    MessageTitle = MessageTitle.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3", "").replace("Disk 4", "").replace("Side A", "").replace("Side B", "")
+                    MessageTitle = MessageTitle.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3", "").replace("Disc 4", "").replace("Side C", "").replace("Side D", "")
+                    if ", The" in MessageTitle:
+                        MessageTitle = "The " + MessageTitle.replace(", The","")
                 n+=1
         
         #Create wikipedia URL
@@ -169,17 +202,15 @@ async def on_message_delete(message):
 
 @bot.event
 async def on_reaction_add(reaction, user):
-    global lastConsole
     if user != bot.user:
-        if str(reaction.emoji) == "❓":
+        if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔":
             for console in ConsoleList:
-                if console.name.replace('.csv', '').lower() in lastConsole.replace('.csv', '').lower():
-                    await reaction.message.edit(embed=console.lastEmbed)
+                if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),reaction.message.embed.title) != -1:
+                    await reaction.message.edit(embed=console.GetMessageDetails(reaction.message.embed.title))
             
 
 @bot.event
 async def on_message(message):
-    global lastConsole
     if message.author == bot.user: 
         return
 
@@ -190,7 +221,6 @@ async def on_message(message):
             or (message.content.lower().endswith(" " + console.name.replace('.csv', '').lower())) \
             or (message.content.lower() == console.name.replace('.csv', '').lower()):
                 print(f'{console.name} called')
-                lastConsole = console.name
                 await message.channel.send(embed=console.GetMessage())
                 return
         
