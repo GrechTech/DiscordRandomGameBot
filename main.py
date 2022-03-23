@@ -226,20 +226,23 @@ async def on_message_delete(message):
 @bot.event
 async def on_reaction_add(reaction, user):
     if user != bot.user and reaction.message.author.id == bot.user.id:
-        if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
-            for console in ConsoleList:
-                if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
-                    title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
-                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),title) != -1:
-                        await reaction.message.edit(embed=console.GetMessageDetails(title))
-                        return
-        elif str(reaction.emoji) == "❗" or str(reaction.emoji) == "❕":
-            for console in ConsoleList:
-                if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
-                    title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
-                    if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),title) != -1:
-                        await reaction.message.edit(embed=console.GetMessageDetails(title, True))
-                        return
+        try:
+            if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
+                for console in ConsoleList:
+                    if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
+                        title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
+                        if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),title) != -1:
+                            await reaction.message.edit(embed=console.GetMessageDetails(title))
+                            return
+            elif str(reaction.emoji) == "❗" or str(reaction.emoji) == "❕":
+                for console in ConsoleList:
+                    if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
+                        title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
+                        if find_csv_line(os.path.join(os.path.join(DIR_PATH, 'Data/'), console.name),title) != -1:
+                            await reaction.message.edit(embed=console.GetMessageDetails(title, True))
+                            return
+        except:
+            print("React Error (Probably a reaction on bots own message that isnt game related)")
             
 
 @bot.event
