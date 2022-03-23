@@ -225,7 +225,7 @@ async def on_message_delete(message):
 
 @bot.event
 async def on_reaction_add(reaction, user):
-    if user != bot.user:
+    if user != bot.user and reaction.message.author.id == bot.user.id:
         if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
             for console in ConsoleList:
                 if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
