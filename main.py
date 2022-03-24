@@ -216,15 +216,15 @@ async def on_ready():
 
 @bot.event
 async def on_message_delete(message):
-    if (not message.author.bot) and 
-    for react in message.reactions:
-        if '\U0001F40C' == react.emoji or 'snailuri' == react.emoji :
-            embed = discord.Embed(title="Snailed Message Deleted")
-            embed.add_field(name="Member: ", value=message.author.mention, inline=False)
-            embed.add_field(name="Message: ", value=message.content, inline=True)
+    if not message.author.bot: 
+        for react in message.reactions:
+            if '\U0001F40C' == react.emoji or 'snailuri' == react.emoji :
+                embed = discord.Embed(title="Snailed Message Deleted")
+                embed.add_field(name="Member: ", value=message.author.mention, inline=False)
+                embed.add_field(name="Message: ", value=message.content, inline=True)
 
-            await message.channel.send(embed=embed)
-            return
+                await message.channel.send(embed=embed)
+                return
 
 @bot.event
 async def on_reaction_add(reaction, user):
