@@ -216,7 +216,7 @@ async def on_ready():
 
 @bot.event
 async def on_message_delete(message):
-    if (not message.author.bot) and ('\U0001F40C' in message.reactions or ':snailuri:' in message.reactions):
+    if (not message.author.bot) and ( '\U0001F40C' == message.reactions[0].emoji or 'snailuri' == message.reactions[0].emoji ):
         embed = discord.Embed(title="Snailed Message Deleted")
         embed.add_field(name="Member: ", value=message.author.mention, inline=False)
         embed.add_field(name="Message: ", value=message.content, inline=True)
