@@ -39,10 +39,10 @@ def find_csv_line(path,query):
         n = 0
         for row in reader:
             n += 1
-            newrow = row
-            if ", The" in newrow:
-                newrow = "The " + newrow.replace(", The","")
-            if query in newrow:
+            newquery = query
+            if ", The" in newquery:
+                newquery = "The " + newquery.replace("The ","") + ", The"
+            if newquery in row:
                 return n
         print("No query found for: ", query, " at ", path)
         return -1
