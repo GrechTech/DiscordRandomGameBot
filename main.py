@@ -301,9 +301,9 @@ async def on_message(message):
                     if snail:
                         emoji = '\U0001F40C' #Snail
                         if message.author.id == 178130280400420864: #Jaysnail
-                            emoji = '<:snailuri:968161545035071498>'
+                            emoji = discord.utils.get(bot.emojis, name="snailuri") #'<:snailuri:968161545035071498>'
                         if message.author.id == 359339700240252928: #Jaysnail
-                            emoji = '<:clueless:968162586916978718>'
+                            emoji = discord.utils.get(bot.emojis, name="clueless") #'<:snailuri:968161545035071498>'
                         await message.add_reaction(emoji)
                     else:
                         with open(URLS_PATH, 'a') as file:
