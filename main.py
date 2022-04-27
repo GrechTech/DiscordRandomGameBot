@@ -260,7 +260,7 @@ async def on_message(message):
         return
 
     # Wordlist functionality
-    wordlist.WordlistCheck(message)
+    await wordlist.WordlistCheck(message)
 
     if not check_reply(message):
         for console in ConsoleList:

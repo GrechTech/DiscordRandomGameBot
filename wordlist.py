@@ -20,7 +20,7 @@ def SetNewWord(destructive = True):
 
     Wordlist_length = len(lines)
 
-    print("Wordlist length: " + Wordlist_length)
+    print("Wordlist length: ", Wordlist_length)
     # Select random word
     Index = round(random() * Wordlist_length)
     if Index < 0:
@@ -41,7 +41,7 @@ def SetNewWord(destructive = True):
 
         # Store changes to word list
         with open(WORD_LIST_PATH, "w") as f:
-            f.write(lines)
+            f.writelines(lines)
             print("Word removed")
 
 async def WordlistCheck(message):
