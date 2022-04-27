@@ -7,6 +7,7 @@ from random import random
 import discord
 from discord.ext import commands
 import time
+import wordlist
 
 #Config constants
 TOKEN = ""
@@ -15,6 +16,8 @@ CONSOLE_CSV_DELIM = '>'
 #Working directory
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
+
+####################
 
 # Auto Snail find URL
 def FindURL(string):
@@ -248,12 +251,16 @@ async def on_reaction_add(reaction, user):
                             return
         except:
             print("React Error (Probably a reaction on bots own message that isnt game related)")
-            
+        
+
 
 @bot.event
 async def on_message(message):
     if message.author == bot.user: 
         return
+
+    # Wordlist functionality
+    wordlist.WordlistCheck()
 
     if not check_reply(message):
         for console in ConsoleList:
