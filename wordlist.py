@@ -20,6 +20,7 @@ def SetNewWord(destructive = True):
 
     Wordlist_length = len(lines)
 
+    print("Wordlist length: " + Wordlist_length)
     # Select random word
     Index = round(random() * Wordlist_length)
     if Index < 0:
@@ -32,6 +33,7 @@ def SetNewWord(destructive = True):
     # Store as current word
     with open(CUR_WORD_PATH, "w") as f:
         f.write(word.rstrip())
+        print("Word stored")
 
     # Remove word from list
     if destructive:
@@ -40,9 +42,11 @@ def SetNewWord(destructive = True):
         # Store changes to word list
         with open(WORD_LIST_PATH, "w") as f:
             f.write(lines)
+            print("Word removed")
 
 async def WordlistCheck(message):
     if CurrentWord() in message.content.lower():
+        print("Word found")
         # Reaction
         emoji = '\U0001F451'
         await message.add_reaction(emoji)
