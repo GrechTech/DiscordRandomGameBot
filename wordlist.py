@@ -8,12 +8,18 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__)) # Working directory
 CUR_WORD_PATH = os.path.join(DIR_PATH,"current_word.txt")
 WORD_LIST_PATH = os.path.join(DIR_PATH,"wordlist.txt")
 
+currentWord = "_"
+
 def CurrentWord():
-    with open(CUR_WORD_PATH) as f:
-        lines = f.readlines()
-    return lines[0].rstrip().lower()
+    if currentWord == "_":
+        with open(CUR_WORD_PATH) as f:
+            lines = f.readlines()
+        return lines[0].rstrip().lower()
+    else:
+        return currentWord
 
 def SetNewWord(destructive = True):
+    global currentWord
     # Get word list
     with open(WORD_LIST_PATH) as f:
         lines = f.readlines()
@@ -34,6 +40,7 @@ def SetNewWord(destructive = True):
     with open(CUR_WORD_PATH, "w") as f:
         f.write(word.rstrip())
         print("Word stored")
+        currentWord = word.rstrip()
 
     # Remove word from list
     if destructive:
@@ -57,5 +64,3 @@ async def WordlistCheck(message):
         embed=discord.Embed(title="New word found!", url=url, description=desc, color=0x828282)
         await message.channel.send(embed=embed)
         SetNewWord()
-        
-####################
