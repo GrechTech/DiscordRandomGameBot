@@ -15,8 +15,11 @@ CONSOLE_CSV_DELIM = '>'
 
 #Working directory
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+TOKEN_PATH = os.path.join(DIR_PATH,"token.txt")
 URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
 
+with open(TOKEN_PATH,'r') as f:
+    TOKEN = f.readline().rstrip()
 ####################
 
 # Auto Snail find URL
@@ -214,6 +217,14 @@ def check_reply(message):
     return False
 
 bot = commands.Bot(command_prefix="!")
+
+@bot.command()
+async def consoles(ctx):
+    list = ""
+    for console in ConsoleList:
+        list += console.name.replace('.csv', '').lower() + '\n'
+    embed=discord.Embed(title="Console List", description=list, color=0xFF1694)
+    await ctx.channel.send(embed)
 
 @bot.event
 async def on_ready():

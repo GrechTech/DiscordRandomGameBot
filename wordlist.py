@@ -13,8 +13,8 @@ currentWord = "_"
 def CurrentWord():
     if currentWord == "_":
         with open(CUR_WORD_PATH) as f:
-            lines = f.readlines()
-        return lines[0].rstrip().lower()
+            line = f.readline()
+        return line.rstrip().lower()
     else:
         return currentWord
 
@@ -51,8 +51,18 @@ def SetNewWord(destructive = True):
             f.writelines(lines)
             print("Word removed")
 
+def MessageCheck(message, text):
+    if message.embeds:
+        if text in message.embeds[0].description or text in message.embeds[0].title or text in message.embeds[0].url:
+            return True
+    
+    if text in message.content:
+        return True
+
+    return False
+
 async def WordlistCheck(message):
-    if CurrentWord() in message.content.lower():
+    if MessageCheck(message, CurrentWord()):
         print("Word found")
         # Reaction
         emoji = '\U0001F451'
@@ -60,7 +70,7 @@ async def WordlistCheck(message):
 
         # Message
         url = "https://en.wikipedia.org/wiki/" + CurrentWord()
-        desc = "The word was: " + CurrentWord() + "\nClick the title to find out what it means!"
-        embed=discord.Embed(title="New word found!", url=url, description=desc, color=0x828282)
+        desc = "New word found!"
+        embed=discord.Embed(title=CurrentWord(), url=url, description=desc, color=0x828282)
         await message.channel.send(embed=embed)
         SetNewWord()
