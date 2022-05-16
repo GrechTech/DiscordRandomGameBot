@@ -52,13 +52,18 @@ def SetNewWord(destructive = True):
             print("Word removed")
 
 def MessageCheck(message, text):
-    if message.embeds:
-        if text in message.embeds[0].description or text in message.embeds[0].title or text in message.embeds[0].url:
-            return True
-    
     if text in message.content:
         return True
-
+    if message.embeds:
+        if message.embeds[0].description != discord.Embed.Empty:
+            if text in message.embeds[0].description:
+                return True
+        if message.embeds[0].title != discord.Embed.Empty:
+            if text in message.embeds[0].title:
+                return True
+        if message.embeds[0].url != discord.Embed.Empty:
+            if text in message.embeds[0].url:
+                return True
     return False
 
 async def WordlistCheck(message):

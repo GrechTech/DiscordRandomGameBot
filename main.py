@@ -222,9 +222,9 @@ bot = commands.Bot(command_prefix="!")
 async def consoles(ctx):
     list = ""
     for console in ConsoleList:
-        list += console.name.replace('.csv', '').lower() + '\n'
+        list += console.name.replace('.csv', '').lower() + ', '
     embed=discord.Embed(title="Console List", description=list, color=0xFF1694)
-    await ctx.channel.send(embed)
+    await ctx.channel.send(embed=embed)
 
 @bot.event
 async def on_ready():
