@@ -1,9 +1,9 @@
 import re, time, os
 import discord
 
-DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Config")
-URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
-URLS_SNAILED_PATH = os.path.join(DIR_PATH,"urls_snailed.txt")
+DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+URLS_PATH = os.path.join(DIR_PATH,"Config","urls.txt")
+URLS_SNAILED_PATH = os.path.join(DIR_PATH,"Config","urls_snailed.txt")
 
 if not os.path.exists(URLS_PATH):
     with open(URLS_PATH, "w+") as f: 

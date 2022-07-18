@@ -10,8 +10,8 @@ TOKEN = ""
 CONSOLE_CSV_DELIM = '>'
 
 #Working directory
-DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Config")
-TOKEN_PATH = os.path.join(DIR_PATH,"token.txt")
+DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+TOKEN_PATH = os.path.join(DIR_PATH,"Config","token.txt")
 
 if not os.path.exists(TOKEN_PATH):
     with open(TOKEN_PATH, "w+") as f: 
