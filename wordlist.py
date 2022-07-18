@@ -2,7 +2,7 @@ import os, time
 import discord
 from random import random
 
-DIR_PATH = os.path.join("usr","app","config")
+DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Config")
 CUR_WORD_PATH = os.path.join(DIR_PATH,"word_current.txt")
 CUR_WORD_DATE_PATH = os.path.join(DIR_PATH,"word_current_date.txt")
 WORD_LIST_PATH = os.path.join(DIR_PATH,"word_list.txt")
