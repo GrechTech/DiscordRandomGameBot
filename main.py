@@ -223,7 +223,7 @@ async def on_ready():
 @bot.event
 # AUTOSNAIL
 async def on_message_delete(message):
-    autosnail.SnailDeleteCheck(message)
+    await autosnail.SnailDeleteCheck(message)
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -265,7 +265,7 @@ async def on_message(message):
                 return
         
         # AUTOSNAIL
-        autosnail.AutoSnail(message, bot)
+        await autosnail.AutoSnail(message, bot)
         
     await bot.process_commands(message)
 
