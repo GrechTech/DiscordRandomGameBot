@@ -10,7 +10,7 @@ TOKEN = ""
 CONSOLE_CSV_DELIM = '>'
 
 #Working directory
-DIR_PATH = os.path.join("home","garry_config")
+DIR_PATH = os.path.join("usr","app","config")
 TOKEN_PATH = os.path.join(DIR_PATH,"token.txt")
 
 with open(TOKEN_PATH,'r') as f:

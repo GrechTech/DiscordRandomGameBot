@@ -1,7 +1,7 @@
 import re, time, os
 import discord
 
-DIR_PATH = os.path.join("home","garry_config")
+DIR_PATH = os.path.join("usr","app","config")
 URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
 URLS_SNAILED_PATH = os.path.join(DIR_PATH,"urls_snailed.txt")
 

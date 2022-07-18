@@ -2,13 +2,7 @@
 A discord bot that gives you a random game name in response to a trigger message
 
 # Setup Environment
-Setup venv (Windows):
 
-py -3 -m venv .venv
-
-.venv\scripts\activate
-
-pip install -r requirements.txt
 
 # Add Databases
 CSV files with headers corresponding to the examples, seperated with '>', using UTF-8 encoding
@@ -31,8 +25,8 @@ Get more information for the most recent game by replying to the message with a 
 
 
 # TODO:
-Command to list all consoles
+DONE: Command to list all consoles
 
-Include description in detail
+DONE: Include description in detail
 
-Detail to be edited into original message upon a reaction
+DONE: Detail to be edited into original message upon a reaction
