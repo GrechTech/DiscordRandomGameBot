@@ -24,7 +24,7 @@ def _currentWord():
 
 def _checkMonthPassed():
     date = 0
-    with open(CUR_WORD_PATH) as f:
+    with open(CUR_WORD_DATE_PATH) as f:
         date = int(f.readline().rstrip().lower())
     return (int(time.time()) - date > (86400 * 28) )
 
