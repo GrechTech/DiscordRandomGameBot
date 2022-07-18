@@ -13,7 +13,10 @@ CONSOLE_CSV_DELIM = '>'
 DIR_PATH = os.path.join("usr","app","config")
 TOKEN_PATH = os.path.join(DIR_PATH,"token.txt")
 
-with open(TOKEN_PATH,'r') as f:
+if not os.path.exists(TOKEN_PATH):
+    with open(TOKEN_PATH, 'w') as f: 
+        f.write('')
+with open(TOKEN_PATH,"r") as f:
     TOKEN = f.readline().rstrip()
 ####################
 

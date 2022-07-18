@@ -5,6 +5,13 @@ DIR_PATH = os.path.join("usr","app","config")
 URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
 URLS_SNAILED_PATH = os.path.join(DIR_PATH,"urls_snailed.txt")
 
+if not os.path.exists(URLS_PATH):
+    with open(URLS_PATH, 'w') as f: 
+        f.write('')
+if not os.path.exists(URLS_PATH):
+    with open(URLS_SNAILED_PATH, 'w') as f: 
+        f.write('')
+
 # Auto Snail find URL
 def _findURL(string):
     # findall() has been used 
