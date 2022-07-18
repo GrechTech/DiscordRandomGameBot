@@ -1,34 +1,21 @@
-from distutils.command.clean import clean
-import re
-import itertools
-import os 
-import csv
+import re, itertools, os , csv
 from random import random
 import discord
 from discord.ext import commands
-import time
 import wordlist
+import autosnail
 
 #Config constants
 TOKEN = ""
 CONSOLE_CSV_DELIM = '>'
 
 #Working directory
-DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+DIR_PATH = os.path.join("home","garry_config")
 TOKEN_PATH = os.path.join(DIR_PATH,"token.txt")
-URLS_PATH = os.path.join(DIR_PATH,"urls.txt")
 
 with open(TOKEN_PATH,'r') as f:
     TOKEN = f.readline().rstrip()
 ####################
-
-# Auto Snail find URL
-def FindURL(string):
-    # findall() has been used 
-    # with valid conditions for urls in string
-    regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-    url = re.findall(regex,string)      
-    return [x[0] for x in url]
 
 #List of active consoles
 ConsoleList = []
@@ -231,16 +218,9 @@ async def on_ready():
     print(f'{bot.user} succesfully logged in!')
 
 @bot.event
+# AUTOSNAIL
 async def on_message_delete(message):
-    if not message.author.bot: 
-        for react in message.reactions:
-            if '\U0001F40C' == react.emoji or 'snailuri' == react.emoji :
-                embed = discord.Embed(title="Snailed Message Deleted")
-                embed.add_field(name="Member: ", value=message.author.mention, inline=False)
-                embed.add_field(name="Message: ", value=message.content, inline=True)
-
-                await message.channel.send(embed=embed)
-                return
+    autosnail.SnailDeleteCheck(message)
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -262,15 +242,13 @@ async def on_reaction_add(reaction, user):
                             return
         except:
             print("React Error (Probably a reaction on bots own message that isnt game related)")
-        
-
 
 @bot.event
 async def on_message(message):
     if message.author == bot.user: 
         return
 
-    # Wordlist functionality
+    # WORDLIST
     await wordlist.WordlistCheck(message)
 
     if not check_reply(message):
@@ -283,50 +261,9 @@ async def on_message(message):
                 await message.channel.send(embed=console.GetMessage())
                 return
         
-        # Autosnail
-        urls = FindURL(message.content)
-        # Check message for url
-        if len(urls) > 0:
-            for url in urls:
-                snail = False
-                clean_url = url.rstrip().lower()
-                ToCheck = ['.png', '.gif', '.jpg','.jpeg', 'discordapp','tenor']
-                if not [ele for ele in ToCheck if(ele in clean_url)]:
-                    if "youtube.com/watch?v=" in clean_url:
-                        clean_url = clean_url.replace("youtube.com/watch?v=","youtu.be/")
-                    
-                    clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
-                    newlines = []
-                    # Check each line of file
-                    
-                    with open(URLS_PATH, 'r') as file:
-                        for line in file:
-                            clean_line = line.rstrip()
-                            date = int(clean_line.split('>')[0])
-                            lineurl = clean_line.split('>')[1]
-                            # Check if message within last 3 days
-                            if (int(time.time()) - date) < (86400 * 3):
-                                newlines.append(clean_line) # Create new list with in date messages
-                                if lineurl == clean_url: # If message a Snail
-                                    snail = True        
-
-                    # Create new file with only in date messages   
-                    with open(URLS_PATH, 'w') as file:
-                        for item in newlines:
-                            file.write("%s\n" % item) 
-
-                    # Snail if snailable, else add to list
-                    if snail:
-                        emoji = '\U0001F40C' #Snail
-                        if message.author.id == 178130280400420864: #Jaysnail
-                            emoji = discord.utils.get(bot.emojis, name="snailuri") #'<:snailuri:968161545035071498>'
-                        await message.add_reaction(emoji)
-                    else:
-                        with open(URLS_PATH, 'a') as file:
-                            newline = str(int(time.time())) + '>' + clean_url + '\n'
-                            file.write(newline)
-
-
+        # AUTOSNAIL
+        autosnail.AutoSnail(message, bot)
+        
     await bot.process_commands(message)
 
 #Start

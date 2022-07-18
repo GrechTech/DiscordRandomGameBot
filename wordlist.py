@@ -1,25 +1,26 @@
-import os
+import os, time
 import discord
 from random import random
 
-DIR_PATH = os.path.dirname(os.path.realpath(__file__)) # Working directory
+DIR_PATH = os.path.join("home","garry_config") # Working directory
 
 ####################
-CUR_WORD_PATH = os.path.join(DIR_PATH,"current_word.txt")
-WORD_LIST_PATH = os.path.join(DIR_PATH,"wordlist.txt")
+CUR_WORD_PATH = os.path.join(DIR_PATH,"word_current.txt")
+CUR_WORD_DATE_PATH = os.path.join(DIR_PATH,"word_current_date.txt")
+WORD_LIST_PATH = os.path.join(DIR_PATH,"word_list.txt")
 
-currentWord = "_"
+def _currentWord():
+    with open(CUR_WORD_PATH) as f:
+        line = f.readline()
+    return line.rstrip().lower()
 
-def CurrentWord():
-    if currentWord == "_":
-        with open(CUR_WORD_PATH) as f:
-            line = f.readline()
-        return line.rstrip().lower()
-    else:
-        return currentWord
+def _checkMonthPassed():
+    date = 0
+    with open(CUR_WORD_PATH) as f:
+        date = int(f.readline().rstrip().lower())
+    return (int(time.time()) - date > (86400 * 28) )
 
-def SetNewWord(destructive = True):
-    global currentWord
+def _setNewWord(destructive = True):
     # Get word list
     with open(WORD_LIST_PATH) as f:
         lines = f.readlines()
@@ -37,21 +38,24 @@ def SetNewWord(destructive = True):
     word = lines[Index]
 
     # Store as current word
-    with open(CUR_WORD_PATH, "w") as f:
+    with open(CUR_WORD_PATH, "w+") as f:
         f.write(word.rstrip())
         print("Word stored")
-        currentWord = word.rstrip()
+
+    with open(CUR_WORD_DATE_PATH, "w+") as f:
+        f.write(str(int(time.time())))
+        print("Word date stored")
 
     # Remove word from list
     if destructive:
         lines.remove(word)
 
         # Store changes to word list
-        with open(WORD_LIST_PATH, "w") as f:
+        with open(WORD_LIST_PATH, "w+") as f:
             f.writelines(lines)
             print("Word removed")
 
-def MessageCheck(message, text):
+def _messageCheck(message, text):
     if text in message.content:
         return True
     if message.embeds:
@@ -67,15 +71,25 @@ def MessageCheck(message, text):
     return False
 
 async def WordlistCheck(message):
-    if MessageCheck(message, CurrentWord()):
+    if _messageCheck(message, _currentWord()):
         print("Word found")
         # Reaction
         emoji = '\U0001F451'
         await message.add_reaction(emoji)
 
         # Message
-        url = "https://en.wikipedia.org/wiki/" + CurrentWord()
+        url = "https://en.wikipedia.org/wiki/" + _currentWord()
         desc = "New word found!"
-        embed=discord.Embed(title=CurrentWord(), url=url, description=desc, color=0x828282)
+        embed=discord.Embed(title=_currentWord(), url=url, description=desc, color=0x828282)
         await message.channel.send(embed=embed)
-        SetNewWord()
+        _setNewWord()
+    
+    if _checkMonthPassed():
+        print("Word timed out")
+
+        # Message
+        url = "https://en.wikipedia.org/wiki/" + _currentWord()
+        desc = "New word not found after 4 weeks"
+        embed=discord.Embed(title=_currentWord(), url=url, description=desc, color=0x828282)
+        await message.channel.send(embed=embed)
+        _setNewWord()
