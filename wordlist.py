@@ -8,13 +8,13 @@ CUR_WORD_DATE_PATH = os.path.join(DIR_PATH,"word_current_date.txt")
 WORD_LIST_PATH = os.path.join(DIR_PATH,"word_list.txt")
 
 if not os.path.exists(CUR_WORD_PATH):
-    with open(CUR_WORD_PATH, 'w') as f: 
+    with open(CUR_WORD_PATH, "w+") as f: 
         f.write('')
 if not os.path.exists(CUR_WORD_DATE_PATH):
-    with open(CUR_WORD_DATE_PATH, 'w') as f: 
+    with open(CUR_WORD_DATE_PATH, "w+") as f: 
         f.write('')
 if not os.path.exists(WORD_LIST_PATH):
-    with open(WORD_LIST_PATH, 'w') as f: 
+    with open(WORD_LIST_PATH, "w+") as f: 
         f.write('')
 
 def _currentWord():
