@@ -56,7 +56,7 @@ async def SnailDeleteCheck(message):
                     return
 
 async def AutoSnail(message, bot):
-    urls = _findURL(message.contents)
+    urls = _findURL(message.content)
     # Check message for url
     if len(urls) > 0:
         for url in urls:
