@@ -17,19 +17,15 @@ def _getBannedWords():
 
 BannedWords = _getBannedWords()
 
-def _words_in_string(word_list, a_string):
-    return set(word_list).intersection(a_string.split())
-
-def _words_in_string2(word_list,a_string):
+def _words_in_string(word_list,a_string):
     for word in word_list:
-        print(word)
-        print(word_list)
         if word in a_string:
+            print("Found: ", word, " in ", a_string)
             return True
     return False
 
 async def CheckForWords(message, bot):
     msg = message.content.lower()
-    if _words_in_string(BannedWords, msg) or _words_in_string2(BannedWords, msg):
+    if _words_in_string(BannedWords, msg):
         emoji = discord.utils.get(bot.emojis, name="greenwithit")
         await message.add_reaction(emoji)
