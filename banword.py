@@ -16,12 +16,8 @@ def _getBannedWords():
 
 BannedWords = _getBannedWords()
 
-def _words_in_string(word_list,a_string):
-    for word in word_list:
-        if word in a_string:
-            print("Found: ", word, " in ", a_string)
-            return True
-    return False
+def _words_in_string(word_list, a_string):
+    return set(word_list).intersection(a_string.split())
 
 async def CheckForWords(message, bot):
     if _words_in_string(BannedWords, message.content.lower()):
