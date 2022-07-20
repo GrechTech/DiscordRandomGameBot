@@ -29,6 +29,6 @@ def _words_in_string2(word_list,a_string):
     return False
 
 async def CheckForWords(message, bot):
-    if _words_in_string(BannedWords, message.content.lower()) or _words_in_string2:
+    if _words_in_string(BannedWords, message.content.lower()) or _words_in_string2(BannedWords, message.content.lower()):
         emoji = discord.utils.get(bot.emojis, name="greenwithit")
         await message.add_reaction(emoji)
