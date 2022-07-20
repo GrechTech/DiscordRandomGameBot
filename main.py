@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 import wordlist
 import autosnail
+import banword
 
 #Config constants
 TOKEN = ""
@@ -251,10 +252,11 @@ async def on_message(message):
     if message.author == bot.user: 
         return
 
-    # WORDLIST
-    await wordlist.WordlistCheck(message)
-
     if not check_reply(message):
+        # AUTOSNAIL
+        await autosnail.AutoSnail(message, bot)
+
+        # CONSOLE REPLY
         for console in ConsoleList:
             if ((' ' + console.name.replace('.csv', '').lower()+ ' ') in message.content.lower()) \
             or (message.content.lower().startswith(console.name.replace('.csv', '').lower() + " ")) \
@@ -264,9 +266,13 @@ async def on_message(message):
                 await message.channel.send(embed=console.GetMessage())
                 return
         
-        # AUTOSNAIL
-        await autosnail.AutoSnail(message, bot)
-        
+    # BAN WORD
+    await banword.CheckForWords(message, bot)
+    
+    # WORDLIST
+    await wordlist.WordlistCheck(message)
+
+    # COMMANDS
     await bot.process_commands(message)
 
 #Start
