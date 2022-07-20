@@ -10,17 +10,23 @@ def _getBannedWords():
     
     with open(BAN_LIST, "r") as file:
         for line in file:
-            clean_line = line.rstrip().lower()
+            clean_line = line.lower()
             newlines.append(clean_line)
     
     return newlines
 
 BannedWords = _getBannedWords()
 
-def _words_in_string(word_list, a_string):
-    return set(word_list).intersection(a_string.split())
+#def _words_in_string(word_list, a_string):
+#    return set(word_list).intersection(a_string.split())
+
+def _words_in_string(word_list,a_string):
+    for word in word_list:
+        if word in a_string:
+            return True
+    return False
 
 async def CheckForWords(message, bot):
-    if _words_in_string(BannedWords, message.content.rstrip().lower()):
+    if _words_in_string(BannedWords, message.content.lower()):
         emoji = discord.utils.get(bot.emojis, name="greenwithit")
         await message.add_reaction(emoji)
