@@ -5,6 +5,7 @@ from discord.ext import commands
 import wordlist
 import autosnail
 import banword
+import imagesearch
 
 #Config constants
 TOKEN = ""
@@ -109,6 +110,7 @@ class Console:
         MessageTitleOutput = MessageTitle + " (" + self.name.replace('.csv', '').upper() + ")"
         #Create message body
         embed=discord.Embed(title=MessageTitleOutput, url=MessageURL, description=MessageDesc, color=0xFF1694)
+        embed.set_thumbnail(imagesearch.DoSearch(MessageTitleOutput + " box art"))
         return embed
 
 

@@ -23,23 +23,13 @@ with open(API_PATH,"r") as f:
 gis = GoogleImagesSearch(api_key, cx)
 
 def DoSearch(query):
-    # define search params
-    # option for commonly used search param are shown below for easy reference.
-    # For param marked with '##':
-    #   - Multiselect is currently not feasible. Choose ONE option only
-    #   - This param can also be omitted from _search_params if you do not wish to define any value
     _search_params = {
     'q': query,
     'num': 1,
     'fileType': 'jpg|gif|png',
-    'rights': 'cc_publicdomain|cc_attribute|cc_sharealike|cc_noncommercial|cc_nonderived',
     }
 
     gis.search(search_params=_search_params)
-
     for image in gis.results():
         return image.url  # image direct url
-    return ""
-
-if __name__ == "__main__":
-    print(DoSearch("wipeout ps1 boxart"))
+    return "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930"
