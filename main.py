@@ -37,7 +37,7 @@ def find_csv_line(path,query):
         n = 0
         for row in reader:
             n += 1
-            newquery = query
+            newquery = query.rstrip()
             if ", The" in newquery:
                 newquery = "The " + newquery.replace("The ","") + ", The"
             if newquery in row:
@@ -70,8 +70,6 @@ class Console:
         MessageTitle = ""
         MessageDesc = ""
         index = find_csv_line(itemPath, Title) - 1
-        if index < 0:
-            return
         line = get_csv_line(itemPath, index)
         for item in line:
             print(item)
@@ -110,7 +108,9 @@ class Console:
         MessageTitleOutput = MessageTitle + " (" + self.name.replace('.csv', '').upper() + ")"
         #Create message body
         embed=discord.Embed(title=MessageTitleOutput, url=MessageURL, description=MessageDesc, color=0xFF1694)
-        embed.set_thumbnail(imagesearch.DoSearch(MessageTitleOutput + " box art"))
+        result = imagesearch.DoSearch(MessageTitleOutput + " box art")
+        print("Search result: ", result)
+        embed.set_thumbnail(url=result)
         return embed
 
 
