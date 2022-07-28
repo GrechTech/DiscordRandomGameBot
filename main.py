@@ -38,11 +38,14 @@ def find_csv_line(path,query):
         for row in reader:
             n += 1
             newquery = query.rstrip()
+            y = 0
             for part in row:
-                if ", The" in part:
-                    part = "The " + part.replace(", The","")
-                if part.find(query) != -1:
-                    return n
+                y += 1
+                if y < 2: # avoid description
+                    if ", The" in part:
+                        part = "The " + part.replace(", The","")
+                    if part.find(query) != -1:
+                        return n
         print("No query found for: ", newquery, " at ", path, " after ", n)
         return -1
 
