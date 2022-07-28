@@ -40,9 +40,12 @@ def find_csv_line(path,query):
             newquery = query.rstrip()
             if ", The" in newquery:
                 newquery = "The " + newquery.replace("The ","") + ", The"
-            if newquery in row:
-                return n
-        print("No query found for: ", query, " at ", path, " after ", n)
+            for part in row:
+                if part.find(query) != -1:
+                    return n
+            print(newquery)
+            print(row)
+        print("No query found for: ", newquery, " at ", path, " after ", n)
         return -1
 
 #Data class for a console message response
