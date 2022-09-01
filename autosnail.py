@@ -44,10 +44,12 @@ def _autosnailFind(path, clean_url):
     
     return snail
 
-async def SnailDeleteCheck(message):
+async def SnailDeleteCheck(message, bot):
     if not message.author.bot: 
             for react in message.reactions:
-                if '\U0001F40C' == react.emoji or 'snailuri' == react.emoji :
+                if '\U0001F40C' == react.emoji \
+                or discord.utils.get(bot.emojis, name="snailuri") == react.emoji \
+                or discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
                     embed = discord.Embed(title="Snailed Message Deleted")
                     embed.add_field(name="Member: ", value=message.author.mention, inline=False)
                     embed.add_field(name="Message: ", value=message.content, inline=True)
