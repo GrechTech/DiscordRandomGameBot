@@ -205,6 +205,8 @@ def GetConsoles():
                     print("New Console: ")
                     print(entry.replace('.csv', ''))
                     ConsoleList.append(Console(entry, LineNo, titleN, developerN, publisherN, yearN, genreN, scoreN, ratingN,descriptionN ))
+                else:
+                    print("Error Invalid format (Check top line)")
 
 #Discord functionality
 def check_reply(message):
