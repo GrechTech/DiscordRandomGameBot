@@ -223,6 +223,11 @@ async def consoles(ctx):
     embed=discord.Embed(title="Console List", description=list, color=0xFF1694)
     await ctx.channel.send(embed=embed)
 
+@bot.command()
+async def roll(ctx, max: int):
+    result = round(random() * max)
+    await ctx.channel.send(str(result))
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} succesfully logged in!')
@@ -280,6 +285,8 @@ async def on_message(message):
 
     # COMMANDS
     await bot.process_commands(message)
+
+    
 
 #Start
 GetConsoles()

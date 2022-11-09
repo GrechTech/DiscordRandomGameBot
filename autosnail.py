@@ -70,6 +70,10 @@ async def AutoSnail(message, bot):
                     clean_url = clean_url.replace("youtube.com/watch?v=","youtu.be/")
                 
                 clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
+                clean_url = clean_url.replace("www.","")
+                clean_url = clean_url.replace("https://","")
+                clean_url = clean_url.replace("http://","")
+                clean_url = clean_url.replace("m.","")
                 if _autosnailFind(URLS_PATH,clean_url):
                     snail = True
 
