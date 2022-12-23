@@ -16,9 +16,6 @@ def _getBannedWords():
 
 BannedWords = _getBannedWords()
 
-def _words_in_string(word_list, a_string):
-    return set(word_list).intersection(a_string.split())
-
 async def CheckForWords(message, bot):
-    if _words_in_string(BannedWords, message.content.lower()):
-        await message.add_reaction(discord.utils.get(bot.emojis, name="cringegrin"))
+    if set(BannedWords).intersection(message.content.lower().split()):                  #Split message into list and compare against the cringelist 
+        await message.add_reaction(discord.utils.get(bot.emojis, name="cringegrin"))    #If two items of list match then react with cringe emote
