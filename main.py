@@ -229,12 +229,12 @@ async def consoles(ctx):
 
 @bot.command()
 async def calc(ctx, *, input: str):
-    result = mathparse.parse(input)
+    result = mathparse.parse(input, language='ENG')
     await ctx.channel.send(str(result))
 
 @bot.command()
 async def roll(ctx, *, inpt: str):
-    parsed_input = mathparse.parse(inpt)
+    parsed_input = mathparse.parse(inpt, language='ENG')
     result = round(random() * parsed_input)
     await ctx.channel.send(str(result))
 
