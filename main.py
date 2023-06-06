@@ -1,5 +1,6 @@
 import re, itertools, os , csv
 from random import random
+from mathparse import mathparse
 import discord
 from discord.ext import commands
 import wordlist
@@ -227,8 +228,14 @@ async def consoles(ctx):
     await ctx.channel.send(embed=embed)
 
 @bot.command()
-async def roll(ctx, max: int):
-    result = round(random() * max)
+async def calc(ctx, input: str):
+    result = mathparse.parse(input)
+    await ctx.channel.send(str(result))
+
+@bot.command()
+async def roll(ctx, inpt: str):
+    parsed_input = mathparse.parse(inpt)
+    result = round(random() * parsed_input)
     await ctx.channel.send(str(result))
 
 @bot.event

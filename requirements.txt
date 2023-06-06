@@ -32,3 +32,4 @@ typing_extensions==4.1.1
 uritemplate==4.1.1
 urllib3==1.26.11
 yarl==1.7.2
+mathparse==0.1.2
