@@ -74,6 +74,8 @@ async def AutoSnail(message, bot):
                 clean_url = clean_url.replace("https://","")
                 clean_url = clean_url.replace("http://","")
                 clean_url = clean_url.replace("m.","")
+                clean_url = clean_url.replace("fxtwitter","twitter")
+                clean_url = clean_url.replace("vxtwitter","twitter")
                 if _autosnailFind(URLS_PATH,clean_url):
                     snail = True
 
