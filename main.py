@@ -1,5 +1,7 @@
+import asyncio
 import re, itertools, os , csv
 from random import random
+import time
 from mathparse import mathparse
 import discord
 from discord.ext import commands
@@ -275,7 +277,11 @@ async def on_message(message):
 
     if not check_reply(message):
         # AUTOSNAIL
-        await autosnail.AutoSnail(message, bot)
+        SnailCheck = await autosnail.AutoSnail(message, bot)
+        if SnailCheck:
+            time.sleep(0.01)
+            msg = await bot.fetch_message(message.id)
+            await autosnail.ConfirmSnail(msg, bot)
 
         # CONSOLE REPLY
         for console in ConsoleList:
