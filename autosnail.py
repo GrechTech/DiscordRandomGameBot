@@ -105,20 +105,3 @@ async def AutoSnail(message, bot):
                         newline = str(int(time.time())) + '>' + clean_url + '\n'
                         file.write(newline)
     return False
-
-
-async def ConfirmSnail(message, bot):
-    SnailConfirmed = False
-    for react in message.reactions:
-        if '\U0001F40C' == react.emoji \
-        or discord.utils.get(bot.emojis, name="snailuri") == react.emoji \
-        or discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
-            SnailConfirmed = True
-
-    if not SnailConfirmed:
-        embed = discord.Embed(title=":sparklesnail: Blocked Snail Alert")
-        embed.add_field(name="Member: ", value=message.author.mention, inline=False)
-        embed.add_field(name="Message: ", value="Previous message requires snailing. Automatic snail failure due to user blocking Garry. Attempting to bypass Garry is a serious offence that can warrant snail time.", inline=True)
-
-        await message.channel.send(embed=embed)
-        return

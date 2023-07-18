@@ -1,7 +1,5 @@
-import asyncio
 import re, itertools, os , csv
 from random import random
-import time
 from mathparse import mathparse
 import discord
 from discord.ext import commands
@@ -277,11 +275,14 @@ async def on_message(message):
 
     if not check_reply(message):
         # AUTOSNAIL
-        SnailCheck = await autosnail.AutoSnail(message, bot)
-        if SnailCheck:
-            time.sleep(0.01)
-            msg = await bot.fetch_message(message.id)
-            await autosnail.ConfirmSnail(msg, bot)
+        try:
+            await autosnail.AutoSnail(message, bot)
+        except discord.errors.Forbidden:
+            embed = discord.Embed(title=":sparklesnail: Blocked Snail Alert")
+            embed.add_field(name="Member: ", value=message.author.mention, inline=False)
+            embed.add_field(name="Message: ", value="Previous message requires snailing. Automatic snail failure due to user blocking Garry. Attempting to bypass Garry is a serious offence that can warrant snail time.", inline=True)
+
+            await message.channel.send(embed=embed)
 
         # CONSOLE REPLY
         for console in ConsoleList:
