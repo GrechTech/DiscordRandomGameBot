@@ -92,7 +92,7 @@ async def AutoSnail(message, bot):
                 clean_url = clean_url.replace("fxtwitter","x")
                 clean_url = clean_url.replace("vxtwitter","x")
                 clean_url = clean_url.replace("twitter","x")
-                if _autosnailFind(URLS_PATH,clean_url):
+                if _autosnailFind(URLS_PATH,clean_url,message.author.id):
                     snail = True
 
 
@@ -100,7 +100,7 @@ async def AutoSnail(message, bot):
                 if snail:
                     double_snail = False
                     # Sparkle/double snail
-                    if _autosnailFind(URLS_SNAILED_PATH,clean_url):
+                    if _autosnailFind(URLS_SNAILED_PATH,clean_url,message.author.id):
                         double_snail = True
 
                     # Normal snail
