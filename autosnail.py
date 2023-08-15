@@ -109,9 +109,9 @@ async def AutoSnail(message, bot):
                         emoji = discord.utils.get(bot.emojis, name="snailuri") #'<:snailuri:968161545035071498>'
                     if double_snail:
                         emoji = discord.utils.get(bot.emojis, name="sparklesnail") #'<:sparklesnail:>'
-                        snailScores(message.author.id,2)
+                        await snailScores(message.author.id,2)
                     else:
-                        snailScores(message.author.id,1)
+                        await snailScores(message.author.id,1)
                         with open(URLS_SNAILED_PATH, "a+") as file:
                             newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
                             file.write(newline)

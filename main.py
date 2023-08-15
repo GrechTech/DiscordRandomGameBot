@@ -220,6 +220,19 @@ def check_reply(message):
 bot = commands.Bot(command_prefix="!")
 
 @bot.command()
+async def leaderboards(ctx):
+    embedMsg = ""
+    URLS_SCORES_PATH = os.path.join(DIR_PATH,"Config","Scores")
+    for filename in os.listdir(URLS_SCORES_PATH):
+        f = os.path.join(URLS_SCORES_PATH, filename)
+        if os.path.isfile(f):
+           with open(f, "r+") as file:
+                score = int(file.rstrip())
+                user = await ctx.fetch_user(int(filename))
+                embedMsg += str(user) + ": " + str(score) + "\n"
+    embed=discord.Embed(title="Snail Score List", description=embedMsg, color=0xF6B600)        
+
+@bot.command()
 async def consoles(ctx):
     list = ""
     for console in ConsoleList:
