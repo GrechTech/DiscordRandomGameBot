@@ -65,8 +65,10 @@ async def SnailDeleteCheck(message, bot):
                 
 async def snailScores(id, scoreDelta):
     score_path = os.path.join(URLS_SCORES_PATH, str(id))
-    with open(score_path, "r+") as file:
-        score = int(file.rstrip())
+    score = 0
+    if os.path.exists(score_path):
+        with open(score_path, "r+") as file:
+            score = int(file.rstrip())
     score += scoreDelta
     with open(score_path, "w+") as file:
         file.write(str(score))
