@@ -13,8 +13,7 @@ if not os.path.exists(URLS_PATH):
     with open(URLS_SNAILED_PATH, "w+") as f: 
         f.write('')
 if not os.path.exists(URLS_SCORES_PATH):
-    with open(os.path.join(URLS_SCORES_PATH,"init"), "w+") as f: 
-        f.write('')
+    os.mkdir(URLS_SCORES_PATH)
 
 # Auto Snail find URL
 def _findURL(string):
