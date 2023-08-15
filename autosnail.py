@@ -4,12 +4,16 @@ import discord
 DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 URLS_PATH = os.path.join(DIR_PATH,"Config","urls.txt")
 URLS_SNAILED_PATH = os.path.join(DIR_PATH,"Config","urls_snailed.txt")
+URLS_SCORES_PATH = os.path.join(DIR_PATH,"Config","Scores")
 
 if not os.path.exists(URLS_PATH):
     with open(URLS_PATH, "w+") as f: 
         f.write('')
 if not os.path.exists(URLS_PATH):
     with open(URLS_SNAILED_PATH, "w+") as f: 
+        f.write('')
+if not os.path.exists(URLS_SCORES_PATH):
+    with open(os.path.join(URLS_SCORES_PATH,"init"), "w+") as f: 
         f.write('')
 
 # Auto Snail find URL
@@ -21,7 +25,7 @@ def _findURL(string):
     return [x[0] for x in url]
 
 # Auto Snail find URL in list
-def _autosnailFind(path, clean_url):
+def _autosnailFind(path, clean_url, author_id):
     snail = False
     newlines = []
     # Check each line of file
@@ -29,13 +33,16 @@ def _autosnailFind(path, clean_url):
     with open(path, "r") as file:
         for line in file:
             clean_line = line.rstrip()
-            date = int(clean_line.split('>')[0])
-            lineurl = clean_line.split('>')[1]
+            ID = int(clean_line.split('>')[0])
+            date = int(clean_line.split('>')[1])
+            lineurl = clean_line.split('>')[2]
             # Check if message within last 3 days
             if (int(time.time()) - date) < (86400 * 3):
                 newlines.append(clean_line) # Create new list with in date messages
-                if lineurl == clean_url: # If message a Snail
+                if lineurl == clean_url and author_id != ID: # If message a Snail
                     snail = True        
+                    snailScores(ID,-1)
+                    
 
     # Create new file with only in date messages   
     with open(path, "w+") as file:
@@ -56,6 +63,15 @@ async def SnailDeleteCheck(message, bot):
 
                     await message.channel.send(embed=embed)
                     return
+                
+async def snailScores(id, scoreDelta):
+    score_path = os.path.join(URLS_SCORES_PATH, str(id))
+    with open(score_path, "r+") as file:
+        score = int(file.rstrip())
+    score += scoreDelta
+    with open(score_path, "w+") as file:
+        file.write(str(score))
+
 
 async def AutoSnail(message, bot):
     urls = _findURL(message.content)
@@ -93,15 +109,17 @@ async def AutoSnail(message, bot):
                         emoji = discord.utils.get(bot.emojis, name="snailuri") #'<:snailuri:968161545035071498>'
                     if double_snail:
                         emoji = discord.utils.get(bot.emojis, name="sparklesnail") #'<:sparklesnail:>'
-                    if not double_snail:
+                        snailScores(message.author.id,2)
+                    else:
+                        snailScores(message.author.id,1)
                         with open(URLS_SNAILED_PATH, "a+") as file:
-                            newline = str(int(time.time())) + '>' + clean_url + '\n'
+                            newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
                             file.write(newline)
 
                     await message.add_reaction(emoji)
                     return True
                 else:
                     with open(URLS_PATH, "a+") as file:
-                        newline = str(int(time.time())) + '>' + clean_url + '\n'
+                        newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
                         file.write(newline)
     return False
