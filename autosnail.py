@@ -68,7 +68,7 @@ async def snailScores(id, scoreDelta):
     score = 0
     if os.path.exists(score_path):
         with open(score_path, "r+") as file:
-            score = int(file.rstrip())
+            score = int(file.read().rstrip())
     score += scoreDelta
     with open(score_path, "w+") as file:
         file.write(str(score))

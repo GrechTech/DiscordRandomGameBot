@@ -227,7 +227,7 @@ async def leaderboards(ctx):
         f = os.path.join(URLS_SCORES_PATH, filename)
         if os.path.isfile(f):
            with open(f, "r+") as file:
-                score = int(file.rstrip())
+                score = int(file.read().rstrip())
                 user = await ctx.fetch_user(int(filename))
                 embedMsg += str(user) + ": " + str(score) + "\n"
     embed=discord.Embed(title="Snail Score List", description=embedMsg, color=0xF6B600)        
