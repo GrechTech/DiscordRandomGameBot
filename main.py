@@ -230,7 +230,8 @@ async def leaderboards(ctx):
                 score = int(file.read().rstrip())
                 user = await bot.fetch_user(int(filename))
                 embedMsg += str(user) + ": " + str(score) + "\n"
-    embed=discord.Embed(title="Snail Score List", description=embedMsg, color=0xF6B600)        
+    embed=discord.Embed(title="Snail Score List", description=embedMsg, color=0xF6B600)     
+    await ctx.channel.send(embed=embed)   
 
 @bot.command()
 async def consoles(ctx):
