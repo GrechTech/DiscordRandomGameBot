@@ -24,7 +24,7 @@ def _findURL(string):
     return [x[0] for x in url]
 
 # Auto Snail find URL in list
-def _autosnailFind(path, clean_url, author_id):
+async def _autosnailFind(path, clean_url, author_id):
     snail = False
     newlines = []
     # Check each line of file
@@ -40,7 +40,7 @@ def _autosnailFind(path, clean_url, author_id):
                 newlines.append(clean_line) # Create new list with in date messages
                 if lineurl == clean_url and author_id != ID: # If message a Snail
                     snail = True        
-                    snailScores(ID,-1)
+                    await snailScores(ID,-1)
                     
 
     # Create new file with only in date messages   
@@ -94,7 +94,7 @@ async def AutoSnail(message, bot):
                 clean_url = clean_url.replace("fxtwitter","x")
                 clean_url = clean_url.replace("vxtwitter","x")
                 clean_url = clean_url.replace("twitter","x")
-                if _autosnailFind(URLS_PATH,clean_url,message.author.id):
+                if await _autosnailFind(URLS_PATH,clean_url,message.author.id):
                     snail = True
 
 
@@ -102,7 +102,7 @@ async def AutoSnail(message, bot):
                 if snail:
                     double_snail = False
                     # Sparkle/double snail
-                    if _autosnailFind(URLS_SNAILED_PATH,clean_url,message.author.id):
+                    if await _autosnailFind(URLS_SNAILED_PATH,clean_url,message.author.id):
                         double_snail = True
 
                     # Normal snail
