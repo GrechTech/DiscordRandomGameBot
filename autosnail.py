@@ -5,6 +5,7 @@ DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 URLS_PATH = os.path.join(DIR_PATH,"Config","urls.txt")
 URLS_SNAILED_PATH = os.path.join(DIR_PATH,"Config","urls_snailed.txt")
 URLS_SCORES_PATH = os.path.join(DIR_PATH,"Config","Scores")
+URLS_ACTIVITY_PATH = os.path.join(DIR_PATH,"Activity","Scores")
 
 if not os.path.exists(URLS_PATH):
     with open(URLS_PATH, "w+") as f: 
@@ -14,6 +15,8 @@ if not os.path.exists(URLS_PATH):
         f.write('')
 if not os.path.exists(URLS_SCORES_PATH):
     os.mkdir(URLS_SCORES_PATH)
+if not os.path.exists(URLS_ACTIVITY_PATH):
+    os.mkdir(URLS_ACTIVITY_PATH)
 
 # Auto Snail find URL
 def _findURL(string):
@@ -73,7 +76,6 @@ async def snailScores(id, scoreDelta):
     with open(score_path, "w+") as file:
         file.write(str(score))
 
-
 async def AutoSnail(message, bot):
     urls = _findURL(message.content)
     # Check message for url
@@ -81,7 +83,7 @@ async def AutoSnail(message, bot):
         for url in urls:
             snail = False
             clean_url = url.rstrip().lower()
-            ToCheck = ['.png', '.gif', '.jpg','.jpeg', 'discordapp','tenor']
+            ToCheck = ['.png', '.gif', '.jpg','.jpeg', 'discordapp','tenor', 'gstatic']
             if not [ele for ele in ToCheck if(ele in clean_url)]:
                 if "youtube.com/watch?v=" in clean_url:
                     clean_url = clean_url.replace("youtube.com/watch?v=","youtu.be/")
