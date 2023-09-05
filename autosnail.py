@@ -5,7 +5,6 @@ DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 URLS_PATH = os.path.join(DIR_PATH,"Config","urls.txt")
 URLS_SNAILED_PATH = os.path.join(DIR_PATH,"Config","urls_snailed.txt")
 URLS_SCORES_PATH = os.path.join(DIR_PATH,"Config","Scores")
-URLS_ACTIVITY_PATH = os.path.join(DIR_PATH,"Activity","Scores")
 
 if not os.path.exists(URLS_PATH):
     with open(URLS_PATH, "w+") as f: 
@@ -15,8 +14,6 @@ if not os.path.exists(URLS_PATH):
         f.write('')
 if not os.path.exists(URLS_SCORES_PATH):
     os.mkdir(URLS_SCORES_PATH)
-if not os.path.exists(URLS_ACTIVITY_PATH):
-    os.mkdir(URLS_ACTIVITY_PATH)
 
 # Auto Snail find URL
 def _findURL(string):
