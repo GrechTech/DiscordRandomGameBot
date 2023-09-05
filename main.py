@@ -249,7 +249,7 @@ async def calc(ctx, *, input: str):
 @bot.command()
 async def roll(ctx, *, inpt: str):
     parsed_input = mathparse.parse(inpt, language='ENG')
-    result = round(random() * parsed_input)
+    result = round(random() * float(parsed_input))
     await ctx.channel.send(str(result))
 
 @bot.event
