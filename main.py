@@ -317,7 +317,10 @@ async def on_message(message):
     # COMMANDS
     await bot.process_commands(message)
 
-    
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.Forbidden):
+        print("No permission")
 
 #Start
 GetConsoles()
