@@ -2,55 +2,55 @@ import os, time
 import discord
 from random import random
 
-DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-CUR_WORD_PATH = os.path.join(DIR_PATH,"Config","word_current.txt")
-CUR_WORD_DATE_PATH = os.path.join(DIR_PATH,"Config","word_current_date.txt")
-WORD_LIST_PATH = os.path.join(DIR_PATH,"Config","word_list.txt")
+dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+cur_word_path = os.path.join(dir_path,"Config","word_current.txt")
+cur_word_date_path = os.path.join(dir_path,"Config","word_current_date.txt")
+word_list_path = os.path.join(dir_path,"Config","word_list.txt")
 
-if not os.path.exists(CUR_WORD_PATH):
-    with open(CUR_WORD_PATH, "w+") as f: 
+if not os.path.exists(cur_word_path):
+    with open(cur_word_path, "w+") as f: 
         f.write('')
-if not os.path.exists(CUR_WORD_DATE_PATH):
-    with open(CUR_WORD_DATE_PATH, "w+") as f: 
+if not os.path.exists(cur_word_date_path):
+    with open(cur_word_date_path, "w+") as f: 
         f.write('')
-if not os.path.exists(WORD_LIST_PATH):
-    with open(WORD_LIST_PATH, "w+") as f: 
+if not os.path.exists(word_list_path):
+    with open(word_list_path, "w+") as f: 
         f.write('')
 
-def _currentWord():
-    with open(CUR_WORD_PATH) as f:
+def current_word():
+    with open(cur_word_path) as f:
         line = f.readline()
     return line.rstrip().lower()
 
-def _checkMonthPassed():
+def check_month_passed():
     date = 0
-    with open(CUR_WORD_DATE_PATH) as f:
+    with open(cur_word_date_path) as f:
         date = int(f.readline().rstrip().lower())
     return (int(time.time()) - date > (86400 * 28) )
 
-def _setNewWord(destructive = True):
+def set_new_word(destructive = True):
     # Get word list
-    with open(WORD_LIST_PATH) as f:
+    with open(word_list_path) as f:
         lines = f.readlines()
 
-    Wordlist_length = len(lines)
+    wordlist_length = len(lines)
 
-    print("Wordlist length: ", Wordlist_length)
+    print("Wordlist length: ", wordlist_length)
     # Select random word
-    Index = round(random() * Wordlist_length)
-    if Index < 0:
-        Index = 0
-    elif Index > Wordlist_length:
-        Index = Wordlist_length
+    index = round(random() * wordlist_length)
+    if index < 0:
+        index = 0
+    elif index > wordlist_length:
+        index = wordlist_length
 
-    word = lines[Index]
+    word = lines[index]
 
     # Store as current word
-    with open(CUR_WORD_PATH, "w+") as f:
+    with open(cur_word_path, "w+") as f:
         f.write(word.rstrip())
         print("Word stored")
 
-    with open(CUR_WORD_DATE_PATH, "w+") as f:
+    with open(cur_word_date_path, "w+") as f:
         f.write(str(int(time.time())))
         print("Word date stored")
 
@@ -59,11 +59,11 @@ def _setNewWord(destructive = True):
         lines.remove(word)
 
         # Store changes to word list
-        with open(WORD_LIST_PATH, "w+") as f:
+        with open(word_list_path, "w+") as f:
             f.writelines(lines)
             print("Word removed")
 
-def _messageCheck(message, text):
+def message_check(message, text):
     if text in message.content:
         return True
     if message.embeds:
@@ -78,26 +78,25 @@ def _messageCheck(message, text):
                 return True
     return False
 
-async def WordlistCheck(message):
-    if _messageCheck(message, _currentWord()):
+async def word_list_check(message):
+    if message_check(message, current_word()):
         print("Word found")
         # Reaction
         emoji = '\U0001F451'
         await message.add_reaction(emoji)
 
         # Message
-        url = "https://en.wikipedia.org/wiki/" + _currentWord()
+        url = "https://en.wikipedia.org/wiki/" + current_word()
         desc = "New word found!"
-        embed=discord.Embed(title=_currentWord(), url=url, description=desc, color=0x828282)
+        embed=discord.Embed(title=current_word(), url=url, description=desc, color=0x828282)
         await message.channel.send(embed=embed)
-        _setNewWord()
+        set_new_word()
     
-    if _checkMonthPassed():
+    if check_month_passed():
         print("Word timed out")
-
         # Message
-        url = "https://en.wikipedia.org/wiki/" + _currentWord()
+        url = "https://en.wikipedia.org/wiki/" + current_word()
         desc = "New word not found after 4 weeks"
-        embed=discord.Embed(title=_currentWord(), url=url, description=desc, color=0x828282)
+        embed=discord.Embed(title=current_word(), url=url, description=desc, color=0x828282)
         await message.channel.send(embed=embed)
-        _setNewWord()
+        set_new_word()

@@ -1,28 +1,28 @@
 from google_images_search import GoogleImagesSearch
 import os
 
-DIR_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-CX_PATH = os.path.join(DIR_PATH,"Config","search_cx.txt")
-API_PATH = os.path.join(DIR_PATH,"Config","search_api.txt")
+dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+cx_path = os.path.join(dir_path,"Config","search_cx.txt")
+api_path = os.path.join(dir_path,"Config","search_api.txt")
 
 cx = ""
 api_key = ""
 
-if not os.path.exists(CX_PATH):
-    with open(CX_PATH, "w+") as f: 
+if not os.path.exists(cx_path):
+    with open(cx_path, "w+") as f: 
         f.write('')
-with open(CX_PATH,"r") as f:
+with open(cx_path,"r") as f:
     cx = f.readline().rstrip()
 
-if not os.path.exists(CX_PATH):
-    with open(API_PATH, "w+") as f: 
+if not os.path.exists(cx_path):
+    with open(api_path, "w+") as f: 
         f.write('')
-with open(API_PATH,"r") as f:
+with open(api_path,"r") as f:
     api_key = f.readline().rstrip()
 
 gis = GoogleImagesSearch(api_key, cx)
 
-def DoSearch(query):
+def do_search(query):
     _search_params = {
     'q': query,
     'num': 1,
