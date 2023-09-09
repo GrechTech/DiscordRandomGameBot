@@ -73,24 +73,31 @@ async def on_reaction_add(reaction, user):
 
 @bot.event
 async def on_message(message):
-    if message.author == bot.user: 
-        return
+    try:
+        if message.author == bot.user: 
+            return
 
-    if not check_reply(message):
-        # AUTOSNAIL
-        await autosnail.auto_snail_safe(message, bot)
+        if not check_reply(message):
+            # AUTOSNAIL
+            await autosnail.auto_snail_safe(message, bot)
 
-        # CONSOLE REPLY
-        await console_bot.check_consoles(message)     
+            # CONSOLE REPLY
+            await console_bot.check_consoles(message)     
+            
+        # BAN WORD
+        await banword.check_for_words(message, bot)
         
-    # BAN WORD
-    await banword.check_for_words(message, bot)
-    
-    # WORDLIST
-    await wordlist.word_list_check(message)
+        # WORDLIST
+        await wordlist.word_list_check(message)
 
-    # COMMANDS
-    await bot.process_commands(message)
+        # COMMANDS
+        await bot.process_commands(message)
+    except Exception as e:
+        print(e)
+        embed = discord.Embed(title="Error")
+        embed.add_field(name="Message: ", value=str(e))
+        await message.channel.send(embed=embed)
+
 
 @bot.event
 async def on_command_error(ctx, error):
