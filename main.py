@@ -78,17 +78,10 @@ async def on_message(message):
 
     if not check_reply(message):
         # AUTOSNAIL
-        try:
-            await autosnail.auto_snail(message, bot)
-        except discord.errors.Forbidden:
-            embed = discord.Embed(title=":sparklesnail: Blocked Snail Alert")
-            embed.add_field(name="Member: ", value=message.author.mention, inline=False)
-            embed.add_field(name="Message: ", value="Previous message requires snailing. Automatic snail failure due to user blocking Garry. Attempting to bypass Garry is a serious offence that can warrant snail time.", inline=True)
-            await message.channel.send(embed=embed)
-            return
+        await autosnail.auto_snail_safe(message, bot)
 
         # CONSOLE REPLY
-    await console_bot.check_consoles(message)     
+        await console_bot.check_consoles(message)     
         
     # BAN WORD
     await banword.check_for_words(message, bot)
