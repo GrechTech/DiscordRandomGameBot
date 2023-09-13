@@ -13,7 +13,6 @@ consoles_delim = '>'
 # List of active consoles
 console_list = []
 
-
 # Directly access single line of CSV file
 def get_csv_line(path, line_number):
     with open(path, encoding='utf8') as f:
@@ -79,6 +78,9 @@ class Response:
 
 # Data class for a console database item
 class Console:
+    rom_name_substitutions_pre = {"Disk", "Disc", "Side"}
+    rom_name_substitutions_post = {"1", "2", "3", "4", "5", "6", "A", "B", "C", "D"}
+    
     def __init__(self, name, size, title, developer, publisher, year, genre, score, rating, description):
         self.name = name
         self.size = size
@@ -87,8 +89,7 @@ class Console:
     def get_message_details(self, title, full=False):
         item_path = os.path.join(os.path.join(dir_path, 'Data/'), self.name)
         n = 0
-        rom_name_substitutions_pre = {"Disk", "Disc", "Side"}
-        rom_name_substitutions_post = {"1", "2", "3", "4", "5", "6", "A", "B", "C", "D"}
+        
         message_title = ""
         message_desc = ""
         index = find_csv_line(item_path, title) - 1
@@ -99,8 +100,8 @@ class Console:
                 if n == self.columns.title:
                     message_title = re.sub(r"\([^()]*\)", "", item)
                     message_title = re.sub(r'\[[^]]*]', "", message_title)
-                    for pre in rom_name_substitutions_pre:
-                        for post in rom_name_substitutions_post:
+                    for pre in self.rom_name_substitutions_pre:
+                        for post in self.rom_name_substitutions_post:
                             message_title = message_title.replace(pre + post, "")
                             message_title = message_title.replace(pre + " " + post, "")
                     if ", The" in message_title:
@@ -150,32 +151,11 @@ class Console:
             if item != "":
                 if n == self.columns.title:
                     message_title = re.sub(r"\([^()]*\)", "", item)
-                    message_title = message_title.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3",
-                                                                                                      "").replace(
-                        "Disk 4", "").replace("Side A", "").replace("Side B", "")
-                    message_title = message_title.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3",
-                                                                                                      "").replace(
-                        "Disc 4", "").replace("Side C", "").replace("Side D", "")
-                    message_title = message_title.replace("- Disk 1", "").replace("- Disk 2", "").replace("- Disk 3",
-                                                                                                          "").replace(
-                        "- Disk 4", "").replace("- Side A", "").replace("- Side B", "")
-                    message_title = message_title.replace("- Disc 1", "").replace("- Disc 2", "").replace("- Disc 3",
-                                                                                                          "").replace(
-                        "- Disc 4", "").replace("- Side C", "").replace("- Side D", "")
-                    message_title = message_title.replace("Disk1", "").replace("Disk2", "").replace("Disk3",
-                                                                                                    "").replace("Disk4",
-                                                                                                                "").replace(
-                        "SideA", "").replace("SideB", "")
-                    message_title = message_title.replace("Disc1", "").replace("Disc2", "").replace("Disc3",
-                                                                                                    "").replace("Disc4",
-                                                                                                                "").replace(
-                        "SideC", "").replace("SideD", "")
-                    message_title = message_title.replace("- Disk1", "").replace("- Disk2", "").replace("- Disk3",
-                                                                                                        "").replace(
-                        "- Disk4", "").replace("- SideA", "").replace("- SideB", "")
-                    message_title = message_title.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3",
-                                                                                                        "").replace(
-                        "- Disc4", "").replace("- SideC", "").replace("- SideD", "")
+                    message_title = re.sub(r'\[[^]]*]', "", message_title)
+                    for pre in self.rom_name_substitutions_pre:
+                        for post in self.rom_name_substitutions_post:
+                            message_title = message_title.replace(pre + post, "")
+                            message_title = message_title.replace(pre + " " + post, "")
                     if ", The" in message_title:
                         message_title = "The " + message_title.replace(", The", "")
                     message_title = message_title.rstrip()
