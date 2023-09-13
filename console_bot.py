@@ -1,5 +1,9 @@
-import re, itertools, os , csv
+import csv
+import itertools
+import os
+import re
 from random import random
+
 import discord
 import imagesearch
 
@@ -9,14 +13,16 @@ consoles_delim = '>'
 # List of active consoles
 console_list = []
 
+
 # Directly access single line of CSV file
 def get_csv_line(path, line_number):
-    with open(path,encoding='utf8') as f:
-        return next(itertools.islice(csv.reader(f, delimiter=consoles_delim ), line_number, None))
+    with open(path, encoding='utf8') as f:
+        return next(itertools.islice(csv.reader(f, delimiter=consoles_delim), line_number, None))
+
 
 # GetCSV Row
-def find_csv_line(path,query):
-    with open(path, 'rt',encoding='utf-8') as f:
+def find_csv_line(path, query):
+    with open(path, 'rt', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=consoles_delim)
         n = 0
         for row in reader:
@@ -25,32 +31,38 @@ def find_csv_line(path,query):
             y = 0
             for part in row:
                 y += 1
-                if y < 2: # avoid description
+                if y < 2:  # avoid description
                     if ", The" in part:
-                        part = "The " + part.replace(", The","")
+                        part = "The " + part.replace(", The", "")
                     if part.find(query) != -1:
                         return n
         print("No query found for: ", new_query, " at ", path, " after ", n)
         return -1
 
+
 async def console_react(reaction):
     try:
-        if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(reaction.emoji) == "❕":
+        if str(reaction.emoji) == "❓" or str(reaction.emoji) == "❔" and not str(reaction.emoji) == "❗" and not str(
+                reaction.emoji) == "❕":
             for console in console_list:
                 if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
-                    title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
-                    if find_csv_line(os.path.join(os.path.join(dir_path, 'Data/'), console.name),title) != -1:
-                        await reaction.message.edit(embed=console.GetMessageDetails(title))
+                    title = reaction.message.embeds[0].title.replace(
+                        '(' + console.name.replace('.csv', '').upper() + ')', '').rstrip()
+                    if find_csv_line(os.path.join(os.path.join(dir_path, 'Data/'), console.name), title) != -1:
+                        await reaction.message.edit(embed=console.get_message_details(title))
                         return
         elif str(reaction.emoji) == "❗" or str(reaction.emoji) == "❕":
             for console in console_list:
                 if reaction.message.embeds[0].title.endswith('(' + console.name.replace('.csv', '').upper() + ')'):
-                    title = reaction.message.embeds[0].title.replace('(' + console.name.replace('.csv', '').upper() + ')','').rstrip()
-                    if find_csv_line(os.path.join(os.path.join(dir_path, 'Data/'), console.name),title) != -1:
-                        await reaction.message.edit(embed=console.GetMessageDetails(title, True))
+                    title = reaction.message.embeds[0].title.replace(
+                        '(' + console.name.replace('.csv', '').upper() + ')', '').rstrip()
+                    if find_csv_line(os.path.join(os.path.join(dir_path, 'Data/'), console.name), title) != -1:
+                        await reaction.message.edit(embed=console.get_message_details(title, True))
                         return
-    except:
-        print("React Error (Probably a reaction on bots own message that isnt game related)")
+    except Exception as e:
+        print("React Error (Probably a reaction on bots own message that isn't game related)")
+        print(e)
+
 
 # Data class for a console message response
 class Response:
@@ -64,6 +76,7 @@ class Response:
         self.rating = rating
         self.description = description
 
+
 # Data class for a console database item
 class Console:
     def __init__(self, name, size, title, developer, publisher, year, genre, score, rating, description):
@@ -71,27 +84,27 @@ class Console:
         self.size = size
         self.columns = Response(title, developer, publisher, year, genre, score, rating, description)
 
-    def get_message_details(self, Title, full = False):
+    def get_message_details(self, title, full=False):
         item_path = os.path.join(os.path.join(dir_path, 'Data/'), self.name)
         n = 0
-        rom_name_substititions_pre = {"Disk", "Disc", "Side"}
-        rom_name_substititions_post = {"1", "2", "3", "4","5","6","A","B","C","D"}
+        rom_name_substitutions_pre = {"Disk", "Disc", "Side"}
+        rom_name_substitutions_post = {"1", "2", "3", "4", "5", "6", "A", "B", "C", "D"}
         message_title = ""
         message_desc = ""
-        index = find_csv_line(item_path, Title) - 1
+        index = find_csv_line(item_path, title) - 1
         line = get_csv_line(item_path, index)
         for item in line:
             print(item)
             if item != "":
                 if n == self.columns.title:
                     message_title = re.sub(r"\([^()]*\)", "", item)
-                    message_title = re.sub(r'\[[^\]]*\]', "", message_title)
-                    for pre in rom_name_substititions_pre:
-                        for post in rom_name_substititions_post:
+                    message_title = re.sub(r'\[[^]]*]', "", message_title)
+                    for pre in rom_name_substitutions_pre:
+                        for post in rom_name_substitutions_post:
                             message_title = message_title.replace(pre + post, "")
                             message_title = message_title.replace(pre + " " + post, "")
                     if ", The" in message_title:
-                        message_title = "The " + message_title.replace(", The","")
+                        message_title = "The " + message_title.replace(", The", "")
                     message_title = message_title.rstrip()
                 if n == self.columns.developer:
                     message_desc += ('Developer: ' + item + '\n')
@@ -107,19 +120,19 @@ class Console:
                     message_desc += ('Rating: ' + item + '\n')
                 if n == self.columns.description and full:
                     message_desc += ('Description: ' + item + '\n')
-                n+=1
-        
+                n += 1
+
         # Create wikipedia URL
-        message_url = "https://en.wikipedia.org/wiki/" + message_title.replace(' ','_').replace('_-_',':_')
+        message_url = "https://en.wikipedia.org/wiki/" + message_title.replace(' ', '_').replace('_-_', ':_')
         message_title_output = message_title + " (" + self.name.replace('.csv', '').upper() + ")"
         # Create message body
-        embed=discord.Embed(title=message_title_output, url=message_url, description=message_desc, color=0xFF1694)
+        embed = discord.Embed(title=message_title_output, url=message_url, description=message_desc, color=0xFF1694)
         result = imagesearch.do_search(message_title_output + " box art")
         print("Search result: ", result)
         embed.set_thumbnail(url=result)
         return embed
 
-    def GetMessage(self):
+    def get_message(self):
         item_path = os.path.join(os.path.join(dir_path, 'Data/'), self.name)
         index = round(random() * self.size)
 
@@ -137,42 +150,62 @@ class Console:
             if item != "":
                 if n == self.columns.title:
                     message_title = re.sub(r"\([^()]*\)", "", item)
-                    message_title = message_title.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3", "").replace("Disk 4", "").replace("Side A", "").replace("Side B", "")
-                    message_title = message_title.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3", "").replace("Disc 4", "").replace("Side C", "").replace("Side D", "")
-                    message_title = message_title.replace("- Disk 1", "").replace("- Disk 2", "").replace("- Disk 3", "").replace("- Disk 4", "").replace("- Side A", "").replace("- Side B", "")
-                    message_title = message_title.replace("- Disc 1", "").replace("- Disc 2", "").replace("- Disc 3", "").replace("- Disc 4", "").replace("- Side C", "").replace("- Side D", "")
-                    message_title = message_title.replace("Disk1", "").replace("Disk2", "").replace("Disk3", "").replace("Disk4", "").replace("SideA", "").replace("SideB", "")
-                    message_title = message_title.replace("Disc1", "").replace("Disc2", "").replace("Disc3", "").replace("Disc4", "").replace("SideC", "").replace("SideD", "")
-                    message_title = message_title.replace("- Disk1", "").replace("- Disk2", "").replace("- Disk3", "").replace("- Disk4", "").replace("- SideA", "").replace("- SideB", "")
-                    message_title = message_title.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3", "").replace("- Disc4", "").replace("- SideC", "").replace("- SideD", "")
+                    message_title = message_title.replace("Disk 1", "").replace("Disk 2", "").replace("Disk 3",
+                                                                                                      "").replace(
+                        "Disk 4", "").replace("Side A", "").replace("Side B", "")
+                    message_title = message_title.replace("Disc 1", "").replace("Disc 2", "").replace("Disc 3",
+                                                                                                      "").replace(
+                        "Disc 4", "").replace("Side C", "").replace("Side D", "")
+                    message_title = message_title.replace("- Disk 1", "").replace("- Disk 2", "").replace("- Disk 3",
+                                                                                                          "").replace(
+                        "- Disk 4", "").replace("- Side A", "").replace("- Side B", "")
+                    message_title = message_title.replace("- Disc 1", "").replace("- Disc 2", "").replace("- Disc 3",
+                                                                                                          "").replace(
+                        "- Disc 4", "").replace("- Side C", "").replace("- Side D", "")
+                    message_title = message_title.replace("Disk1", "").replace("Disk2", "").replace("Disk3",
+                                                                                                    "").replace("Disk4",
+                                                                                                                "").replace(
+                        "SideA", "").replace("SideB", "")
+                    message_title = message_title.replace("Disc1", "").replace("Disc2", "").replace("Disc3",
+                                                                                                    "").replace("Disc4",
+                                                                                                                "").replace(
+                        "SideC", "").replace("SideD", "")
+                    message_title = message_title.replace("- Disk1", "").replace("- Disk2", "").replace("- Disk3",
+                                                                                                        "").replace(
+                        "- Disk4", "").replace("- SideA", "").replace("- SideB", "")
+                    message_title = message_title.replace("- Disc1", "").replace("- Disc2", "").replace("- Disc3",
+                                                                                                        "").replace(
+                        "- Disc4", "").replace("- SideC", "").replace("- SideD", "")
                     if ", The" in message_title:
-                        message_title = "The " + message_title.replace(", The","")
+                        message_title = "The " + message_title.replace(", The", "")
                     message_title = message_title.rstrip()
-                n+=1
-        
+                n += 1
+
         # Create wikipedia URL
-        message_url = "https://en.wikipedia.org/wiki/" + message_title.replace(' ','_').replace('_-_',':_')
+        message_url = "https://en.wikipedia.org/wiki/" + message_title.replace(' ', '_').replace('_-_', ':_')
         message_title_output = message_title + " (" + self.name.replace('.csv', '').upper() + ")"
         # Create message body
-        embed=discord.Embed(title=message_title_output, url=message_url, description=message_score, color=0xFF1694)
+        embed = discord.Embed(title=message_title_output, url=message_url, description=message_score, color=0xFF1694)
         print(index)
         return embed
 
-def get_console_list():  
-    list = ""
+
+def get_console_list():
+    item_list = ""
     for console in console_list:
-        list += console.name.replace('.csv', '').lower() + ', '
-    return discord.Embed(title="Console List", description=list, color=0xFF1694)
+        item_list += console.name.replace('.csv', '').lower() + ', '
+    return discord.Embed(title="Console List", description=item_list, color=0xFF1694)
+
 
 # Function to retrieve list of valid console databases
 def get_consoles():
     # Retrieve consoles from Data folder
-    dataPath = os.path.join(dir_path, 'Data/')
-    for entry in os.listdir(dataPath):
-        itemPath = os.path.join(dataPath, entry)
-        if os.path.isfile(itemPath):
-            with open(itemPath,encoding='utf8', newline='') as csvfile:
-                dbreader = csv.reader(csvfile, delimiter=consoles_delim, quotechar='|',skipinitialspace=True)
+    data_path = os.path.join(dir_path, 'Data/')
+    for entry in os.listdir(data_path):
+        item_path = os.path.join(data_path, entry)
+        if os.path.isfile(item_path):
+            with open(item_path, encoding='utf8', newline='') as csvfile:
+                dbreader = csv.reader(csvfile, delimiter=consoles_delim, quotechar='|', skipinitialspace=True)
                 line_count = 0
 
                 title_count = -1
@@ -186,9 +219,9 @@ def get_consoles():
 
                 for line in dbreader:
                     item_count = 0
-                    for item in line: 
+                    for item in line:
                         if line_count == 0:
-                            #If first line, check which column contains which headers
+                            # If first line, check which column contains which headers
                             if item == 'title':
                                 title_count = item_count
                             if item == 'developer':
@@ -211,16 +244,19 @@ def get_consoles():
                 if title_count != -1:
                     print("New Console: ")
                     print(entry.replace('.csv', ''))
-                    console_list.append(Console(entry, line_count, title_count, developer_count, publisher_count, year_count, genre_count, score_count, rating_count,description_count ))
+                    console_list.append(
+                        Console(entry, line_count, title_count, developer_count, publisher_count, year_count,
+                                genre_count, score_count, rating_count, description_count))
                 else:
                     print("Error Invalid format (Check top line)")
 
+
 async def check_consoles(message):
     for console in console_list:
-        if ((' ' + console.name.replace('.csv', '').lower()+ ' ') in message.content.lower()) \
+        if ((' ' + console.name.replace('.csv', '').lower() + ' ') in message.content.lower()) \
                 or (message.content.lower().startswith(console.name.replace('.csv', '').lower() + " ")) \
                 or (message.content.lower().endswith(" " + console.name.replace('.csv', '').lower())) \
                 or (message.content.lower() == console.name.replace('.csv', '').lower()):
-                    print(f'{console.name} called')
-                    await message.channel.send(embed=console.GetMessage())
-                    return
+            print(f'{console.name} called')
+            await message.channel.send(embed=console.get_message())
+            return
