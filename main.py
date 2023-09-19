@@ -105,9 +105,13 @@ async def on_message(message):
 
 
 @bot.event
-async def on_command_error(error):
-    if isinstance(error, discord.Forbidden):
-        print("No permission")
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("**Invalid command.**")
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('**Pass in all requirements.**')
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("**You dont have all the requirements or permissions for using this command**")
 
 
 # Start
