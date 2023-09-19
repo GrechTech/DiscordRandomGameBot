@@ -55,6 +55,8 @@ async def autosnail_find(path, clean_url, author_id):
 
     return snail
 
+def argsort(seq):
+    return sorted(range(len(seq)), key=seq.__getitem__)
 
 async def leaderboard(bot):
     print("Leaderboards")
@@ -72,7 +74,7 @@ async def leaderboard(bot):
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())
-    entries_sorted_value_index = np.argsort(entries_values)
+    entries_sorted_value_index = argsort(entries_values)
     entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
 
     # Output
