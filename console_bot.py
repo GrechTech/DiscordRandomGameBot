@@ -230,6 +230,7 @@ def get_consoles():
                                 genre_count, score_count, rating_count, description_count))
                 else:
                     print("Error Invalid format (Check top line)")
+                    print(item_path)
 
 
 async def check_consoles(message):
