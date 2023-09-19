@@ -2,7 +2,6 @@ import os
 import re
 import time
 import discord
-import numpy as np
 
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 urls_path = os.path.join(dir_path, "Config", "urls.txt")
