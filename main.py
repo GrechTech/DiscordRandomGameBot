@@ -31,7 +31,7 @@ def check_reply(message):
 
 @bot.command()
 async def leaderboards(ctx):
-    await ctx.channel.send(embed=autosnail.leaderboard(bot))
+    await ctx.channel.send(embed=await autosnail.leaderboard(bot))
 
 
 @bot.command()
