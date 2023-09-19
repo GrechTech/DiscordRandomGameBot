@@ -28,14 +28,16 @@ def check_reply(message):
     print(message.reference is not None and message.is_system)
     return message.reference is not None and message.is_system
 
+
 @bot.command()
 async def leaderboards(ctx):
-    await ctx.channel.send(embed = autosnail.leaderboard(bot))
+    await ctx.channel.send(embed=autosnail.leaderboard(bot))
+
 
 @bot.command()
 async def consoles(ctx):
     print("Console Check")
-    await ctx.channel.send(embed = console_bot.console_list())
+    await ctx.channel.send(embed=console_bot.console_list())
 
 
 @bot.command()
@@ -45,6 +47,7 @@ async def calc(ctx, *, input_val: str):
     print(str(result))
     await ctx.channel.send(str(result))
 
+
 @bot.command()
 async def roll(ctx, *, inpt: str):
     print("Roll: ")
@@ -53,15 +56,18 @@ async def roll(ctx, *, inpt: str):
     print(str(parsed_input), " ", str(result))
     await ctx.channel.send(str(result))
 
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} successfully logged in!')
+
 
 @bot.event
 # AUTOSNAIL
 async def on_message_delete(message):
     print("Message Delete Check")
     await autosnail.snail_delete_check(message, bot)
+
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -97,8 +103,9 @@ async def on_message(message):
         embed.add_field(name="Message: ", value=str(e))
         await message.channel.send(embed=embed)
 
+
 @bot.event
-async def on_command_error(ctx, error):
+async def on_command_error(error):
     if isinstance(error, discord.Forbidden):
         print("No permission")
 

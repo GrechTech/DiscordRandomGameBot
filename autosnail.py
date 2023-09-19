@@ -2,7 +2,6 @@ import os
 import re
 import time
 import discord
-from collections import OrderedDict
 import numpy as np
 
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
@@ -56,13 +55,13 @@ async def autosnail_find(path, clean_url, author_id):
 
     return snail
 
+
 async def leaderboard(bot):
     print("Leaderboards")
     entries = {}
     embed_message = ""
-    
+
     # Read values from scoring files and create unsorted dictionary
-    urls_scores_path = os.path.join(dir_path, "Config", "Scores")
     for filename in os.listdir(urls_scores_path):
         url_f = os.path.join(urls_scores_path, filename)
         if os.path.isfile(url_f):
@@ -71,17 +70,18 @@ async def leaderboard(bot):
                 user = await bot.fetch_user(int(filename))
                 entries[user] = score
     # Sort dictionary
-    entries_keys = list(dict.keys())
-    entries_values = list(dict.values())
+    entries_keys = list(entries.keys())
+    entries_values = list(entries.values())
     entries_sorted_value_index = np.argsort(entries_values)
     entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
-    
+
     # Output
     for key, value in entries_sorted.items():
         embed_message += str(key).split('#')[0] + ": " + str(value) + "\n"
     embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
     print(embed)
     return embed
+
 
 async def snail_delete_check(message, bot):
     if not message.author.bot:
@@ -149,7 +149,7 @@ async def auto_snail(message, bot):
                         with open(urls_snailed_path, "a+") as file:
                             newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
                             file.write(newline)
-                    
+
                     await message.add_reaction(emoji)
                     return True
                 else:

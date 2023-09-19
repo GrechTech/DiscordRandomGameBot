@@ -13,6 +13,7 @@ consoles_delim = '>'
 # List of active consoles
 console_list = []
 
+
 # Directly access single line of CSV file
 def get_csv_line(path, line_number):
     with open(path, encoding='utf8') as f:
@@ -80,7 +81,7 @@ class Response:
 class Console:
     rom_name_substitutions_pre = {"Disk", "Disc", "Side"}
     rom_name_substitutions_post = {"1", "2", "3", "4", "5", "6", "A", "B", "C", "D"}
-    
+
     def __init__(self, name, size, title, developer, publisher, year, genre, score, rating, description):
         self.name = name
         self.size = size
@@ -89,7 +90,7 @@ class Console:
     def get_message_details(self, title, full=False):
         item_path = os.path.join(os.path.join(dir_path, 'Data/'), self.name)
         n = 0
-        
+
         message_title = ""
         message_desc = ""
         index = find_csv_line(item_path, title) - 1
