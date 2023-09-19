@@ -24,59 +24,49 @@ with open(token_path, "r") as f:
 
 # Discord functionality
 def check_reply(message):
-    if message.reference is not None and message.is_system:
-        print(message.reference)
-        return True
-    return False
-
+    print("Reply Check")
+    print(message.reference is not None and message.is_system)
+    return message.reference is not None and message.is_system
 
 @bot.command()
 async def leaderboards(ctx):
-    embed_message = ""
-    urls_scores_path = os.path.join(dir_path, "Config", "Scores")
-    for filename in os.listdir(urls_scores_path):
-        url_f = os.path.join(urls_scores_path, filename)
-        if os.path.isfile(url_f):
-            with open(url_f, "r+") as file:
-                score = int(file.read().rstrip())
-                user = await bot.fetch_user(int(filename))
-                embed_message += str(user).split('#')[0] + ": " + str(score) + "\n"
-    embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
-    await ctx.channel.send(embed=embed)
-
+    await ctx.channel.send(embed = autosnail.leaderboard(bot))
 
 @bot.command()
 async def consoles(ctx):
-    await ctx.channel.send(embed=console_bot.console_list())
+    print("Console Check")
+    await ctx.channel.send(embed = console_bot.console_list())
 
 
 @bot.command()
 async def calc(ctx, *, input_val: str):
+    print("Calc ")
     result = mathparse.parse(input_val, language='ENG')
+    print(str(result))
     await ctx.channel.send(str(result))
-
 
 @bot.command()
 async def roll(ctx, *, inpt: str):
+    print("Roll: ")
     parsed_input = mathparse.parse(inpt, language='ENG')
     result = round(random() * float(parsed_input))
+    print(str(parsed_input), " ", str(result))
     await ctx.channel.send(str(result))
-
 
 @bot.event
 async def on_ready():
     print(f'{bot.user} successfully logged in!')
 
-
 @bot.event
 # AUTOSNAIL
 async def on_message_delete(message):
+    print("Message Delete Check")
     await autosnail.snail_delete_check(message, bot)
-
 
 @bot.event
 async def on_reaction_add(reaction, user):
     if user != bot.user and reaction.message.author.id == bot.user.id:
+        print("Console Reaction Check")
         await console_bot.console_react(reaction)
 
 
@@ -90,10 +80,10 @@ async def on_message(message):
             # AUTOSNAIL
             await autosnail.auto_snail_safe(message, bot)
 
-            # CONSOLE REPLY
+            # CONSOLE
             await console_bot.check_consoles(message)
 
-            # BAN WORD
+        # BAN WORD
         await banword.check_for_words(message, bot)
 
         # WORDLIST
@@ -106,7 +96,6 @@ async def on_message(message):
         embed = discord.Embed(title="Error")
         embed.add_field(name="Message: ", value=str(e))
         await message.channel.send(embed=embed)
-
 
 @bot.event
 async def on_command_error(ctx, error):

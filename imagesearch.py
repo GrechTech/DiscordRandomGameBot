@@ -29,8 +29,9 @@ def do_search(query):
         'num': 1,
         'fileType': 'jpg|gif|png',
     }
-
+    print("Searching")
     gis.search(search_params=_search_params)
     for image in gis.results():
+        print(image.url)
         return image.url  # image direct url
     return "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930"
