@@ -107,10 +107,12 @@ async def on_message(message):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("**Invalid command.**")
+        print("**Invalid command.**")
     if isinstance(error, commands.MissingRequiredArgument):
+        print('**Pass in all requirements.**')
         await ctx.send('**Pass in all requirements.**')
     if isinstance(error, commands.MissingPermissions):
+        print("**You dont have all the requirements or permissions for using this command**")
         await ctx.send("**You dont have all the requirements or permissions for using this command**")
 
 
