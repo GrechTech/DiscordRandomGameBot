@@ -14,7 +14,7 @@ if not os.path.exists(cx_path):
 with open(cx_path, "r") as f:
     cx = f.readline().rstrip()
 
-if not os.path.exists(cx_path):
+if not os.path.exists(api_path):
     with open(api_path, "w+") as f:
         f.write('')
 with open(api_path, "r") as f:
