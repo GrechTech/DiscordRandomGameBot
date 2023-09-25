@@ -24,8 +24,6 @@ with open(token_path, "r") as f:
 
 # Discord functionality
 def check_reply(message):
-    print("Reply Check")
-    print(message.reference is not None and message.is_system)
     return message.reference is not None and message.is_system
 
 
@@ -37,7 +35,7 @@ async def leaderboards(ctx):
 @bot.command()
 async def consoles(ctx):
     print("Console Check")
-    await ctx.channel.send(embed=console_bot.console_list())
+    await ctx.channel.send(embed=console_bot.get_console_list())
 
 
 @bot.command()
