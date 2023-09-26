@@ -20,10 +20,10 @@ if not os.path.exists(api_path):
 with open(api_path, "r") as f:
     api_key = f.readline().rstrip()
 
-gis = GoogleImagesSearch(api_key, cx)
-
-
 def do_search(query):
+    
+    gis = GoogleImagesSearch(api_key, cx)
+    
     _search_params = {
         'q': query,
         'num': 1,
