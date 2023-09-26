@@ -7,6 +7,7 @@ import wordlist
 import autosnail
 import banword
 import console_bot
+import votegary
 
 TOKEN = ""  # From Config / token.txt
 
@@ -45,6 +46,12 @@ async def calc(ctx, *, input_val: str):
     print(str(result))
     await ctx.channel.send(str(result))
 
+@bot.command() # Create a slash command
+async def votegarry(ctx, left, right):
+    if left == "" or right == "":
+        await ctx.channel.send("Missing data")
+    else:
+        await ctx.respond("Vote", view=votegary.VoteView(left, right))
 
 @bot.command()
 async def roll(ctx, *, inpt: str):
