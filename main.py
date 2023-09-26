@@ -41,9 +41,8 @@ def get_cpu_temp():
 async def health(ctx):
     embed = discord.Embed(title = 'System', description = '')
     embed.add_field(name = 'Temperature', value = f'{get_cpu_temp()} °C', inline = False)
-    embed.add_field(name = 'CPU Usage', value = f'{psutil.cpu_percent()}%', inline = False)
-    embed.add_field(name = 'Memory Usage', value = f'{psutil.virtual_memory().percent}%', inline = False)
-    embed.add_field(name = 'Available Memory', value = f'{psutil.virtual_memory().available * 100 / psutil.virtual_memory().total}%', inline = False)
+    embed.add_field(name = 'CPU Use', value = f'{psutil.cpu_percent()}%', inline = False)
+    embed.add_field(name = 'Memory Use', value = f'{psutil.virtual_memory().percent}%', inline = False)
     await ctx.send(embed = embed)
 
 
