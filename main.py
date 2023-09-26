@@ -39,9 +39,11 @@ def get_cpu_temp():
 
 @bot.command()
 async def health(ctx):
-    embed = discord.Embed(title = 'System', description = '')
+    embed = discord.Embed(title = 'System')
     embed.add_field(name = 'Temperature', value = f'{get_cpu_temp()} °C', inline = False)
     embed.add_field(name = 'CPU Use', value = f'{psutil.cpu_percent()}%', inline = False)
+    embed.add_field(name = 'Average Load (1 min)', value = f'{psutil.getloadavg()[0]}%', inline = False)
+    embed.add_field(name = 'Average Load (15 min)', value = f'{psutil.getloadavg()[2]}%', inline = False)
     embed.add_field(name = 'Memory Use', value = f'{psutil.virtual_memory().percent}%', inline = False)
     await ctx.send(embed = embed)
 
@@ -71,9 +73,9 @@ async def votegarry(ctx):
 
 
 @bot.command()
-async def roll(ctx, *, inpt: int):
+async def roll(ctx, *, inpt):
     print("Roll: ")
-    result = round(random() * inpt)
+    result = round(random() * int(inpt))
     print(str(inpt), " ", str(result))
     await ctx.channel.send(str(result))
 
