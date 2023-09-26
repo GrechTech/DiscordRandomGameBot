@@ -72,11 +72,11 @@ async def calc(ctx, *, input_val: str):
 async def votegarry(ctx):
     await ctx.respond("Vote", view=votegary.VoteView())
 
-
+    
 @bot.command()
-async def roll(ctx, *, inpt):
+async def roll(ctx, inpt: int):
     print("Roll: ")
-    result = round(random() * int(inpt))
+    result = round(random() * inpt)
     print(str(inpt), " ", str(result))
     await ctx.channel.send(str(result))
 
@@ -102,45 +102,38 @@ async def on_reaction_add(reaction, user):
 
 @bot.event
 async def on_message(message):
-    try:
-        if message.author == bot.user:
-            return
+    if message.author == bot.user:
+        return
 
-        if not check_reply(message):
-            # AUTOSNAIL
-            await autosnail.auto_snail_safe(message, bot)
+    if not check_reply(message):
+        # AUTOSNAIL
+        await autosnail.auto_snail_safe(message, bot)
 
-            # CONSOLE
-            await console_bot.check_consoles(message)
+        # CONSOLE
+        await console_bot.check_consoles(message)
 
-        # BAN WORD
-        await banword.check_for_words(message, bot)
+    # BAN WORD
+    await banword.check_for_words(message, bot)
 
-        # WORDLIST
-        await wordlist.word_list_check(message)
+    # WORDLIST
+    await wordlist.word_list_check(message)
 
-        # COMMANDS
-        await bot.process_commands(message)
-    except Exception as e:
-        print(e)
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        embed = discord.Embed(title="Error")
-        embed.add_field(name="Message: ", value=str(e))
-        await message.channel.send(embed=embed)
-
+    # COMMANDS
+    await bot.process_commands(message)
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         print("**Invalid command.**")
-    if isinstance(error, commands.MissingRequiredArgument):
+    elif isinstance(error, commands.MissingRequiredArgument):
         print('**Pass in all requirements.**')
         await ctx.send('**Pass in all requirements.**')
-    if isinstance(error, commands.MissingPermissions):
+    elif isinstance(error, commands.MissingPermissions):
         print("**You dont have all the requirements or permissions for using this command**")
         await ctx.send("**You dont have all the requirements or permissions for using this command**")
+    else:
+        print(str(error))
+        await ctx.send(str(error))
 
 
 # Start
