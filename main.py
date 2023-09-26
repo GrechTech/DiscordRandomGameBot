@@ -13,8 +13,8 @@ TOKEN = ""  # From Config / token.txt
 
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 token_path = os.path.join(dir_path, "Config", "token.txt")
-
-bot = commands.Bot(command_prefix="!")
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 if not os.path.exists(token_path):
     with open(token_path, "w+") as f:
@@ -46,12 +46,14 @@ async def calc(ctx, *, input_val: str):
     print(str(result))
     await ctx.channel.send(str(result))
 
-@bot.command() # Create a slash command
+
+@bot.command()  # Create a slash command
 async def votegarry(ctx, left, right):
     if left == "" or right == "":
         await ctx.channel.send("Missing data")
     else:
         await ctx.respond("Vote", view=votegary.VoteView(left, right))
+
 
 @bot.command()
 async def roll(ctx, *, inpt: str):
