@@ -1,4 +1,5 @@
 from random import random
+import sys
 import psutil
 import os
 from mathparse import mathparse
@@ -122,6 +123,9 @@ async def on_message(message):
         await bot.process_commands(message)
     except Exception as e:
         print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
         embed = discord.Embed(title="Error")
         embed.add_field(name="Message: ", value=str(e))
         await message.channel.send(embed=embed)
