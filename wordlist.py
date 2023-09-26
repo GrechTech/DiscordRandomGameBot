@@ -73,6 +73,7 @@ def message_check(message, text):
     if text in message.content:
         return True
     if message.embeds is not None and len(message.embeds) > 0:
+        print(message.embeds)
         if text in message.embeds[0].description:
             return True
         if text in message.embeds[0].title:

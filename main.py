@@ -32,21 +32,21 @@ def check_reply(message):
 
 
 def get_cpu_temp():
-    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
-    cpu_temp = tempFile.read()
-    tempFile.close()
-    return round(float(cpu_temp)/1000, 2)
+    temp_file = open("/sys/class/thermal/thermal_zone0/temp")
+    cpu_temp = temp_file.read()
+    temp_file.close()
+    return round(float(cpu_temp) / 1000, 2)
 
 
 @bot.command()
 async def health(ctx):
-    embed = discord.Embed(title = 'System')
-    embed.add_field(name = 'Temperature', value = f'{get_cpu_temp()} °C', inline = False)
-    embed.add_field(name = 'CPU Use', value = f'{psutil.cpu_percent()}%', inline = False)
-    embed.add_field(name = 'Average Load (1 min)', value = f'{psutil.getloadavg()[0]}%', inline = False)
-    embed.add_field(name = 'Average Load (15 min)', value = f'{psutil.getloadavg()[2]}%', inline = False)
-    embed.add_field(name = 'Memory Use', value = f'{psutil.virtual_memory().percent}%', inline = False)
-    await ctx.send(embed = embed)
+    embed = discord.Embed(title='System')
+    embed.add_field(name='Temperature', value=f'{get_cpu_temp()} °C', inline=False)
+    embed.add_field(name='CPU Use', value=f'{psutil.cpu_percent()}%', inline=False)
+    embed.add_field(name='Average Load (1 min)', value=f'{psutil.getloadavg()[0]}%', inline=False)
+    embed.add_field(name='Average Load (15 min)', value=f'{psutil.getloadavg()[2]}%', inline=False)
+    embed.add_field(name='Memory Use', value=f'{psutil.virtual_memory().percent}%', inline=False)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -62,6 +62,7 @@ async def consoles(ctx):
 
 @bot.command()
 async def calc(ctx, *, input_val: str):
+    print(ctx.message.author.name)
     print("Calc ")
     result = mathparse.parse(input_val, language='ENG')
     print(str(result))
@@ -72,7 +73,7 @@ async def calc(ctx, *, input_val: str):
 async def votegarry(ctx):
     await ctx.respond("Vote", view=votegary.VoteView())
 
-    
+
 @bot.command()
 async def roll(ctx, inpt: int):
     print("Roll: ")
@@ -120,6 +121,7 @@ async def on_message(message):
 
     # COMMANDS
     await bot.process_commands(message)
+
 
 @bot.event
 async def on_command_error(ctx, error):
