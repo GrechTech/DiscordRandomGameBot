@@ -1,4 +1,5 @@
 from random import random
+import psutil
 import os
 from mathparse import mathparse
 import discord
@@ -29,6 +30,23 @@ def check_reply(message):
     return message.reference is not None and message.is_system
 
 
+def get_cpu_temp():
+    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
+    cpu_temp = tempFile.read()
+    tempFile.close()
+    return round(float(cpu_temp)/1000, 2)
+
+
+@bot.command()
+async def health(ctx):
+    embed = discord.Embed(title = 'System', description = '')
+    embed.add_field(name = 'Temperature', value = f'{get_cpu_temp()} °C', inline = False)
+    embed.add_field(name = 'CPU Usage', value = f'{psutil.cpu_percent()}%', inline = False)
+    embed.add_field(name = 'Memory Usage', value = f'{psutil.virtual_memory().percent}%', inline = False)
+    embed.add_field(name = 'Available Memory', value = f'{psutil.virtual_memory().available * 100 / psutil.virtual_memory().total}%', inline = False)
+    await ctx.send(embed = embed)
+
+
 @bot.command()
 async def leaderboards(ctx):
     await ctx.channel.send(embed=await autosnail.leaderboard(bot))
@@ -49,16 +67,15 @@ async def calc(ctx, *, input_val: str):
 
 
 @bot.command()  # Create a slash command
-async def votegarry(ctx, left, right):
+async def votegarry(ctx):
     await ctx.respond("Vote", view=votegary.VoteView())
 
 
 @bot.command()
-async def roll(ctx, *, inpt: str):
+async def roll(ctx, *, inpt: int):
     print("Roll: ")
-    parsed_input = mathparse.parse(inpt, language='ENG')
-    result = round(random() * float(parsed_input))
-    print(str(parsed_input), " ", str(result))
+    result = round(random() * inpt)
+    print(str(inpt), " ", str(result))
     await ctx.channel.send(str(result))
 
 
