@@ -50,10 +50,7 @@ async def calc(ctx, *, input_val: str):
 
 @bot.command()  # Create a slash command
 async def votegarry(ctx, left, right):
-    if left == "" or right == "":
-        await ctx.channel.send("Missing data")
-    else:
-        await ctx.respond("Vote", view=votegary.VoteView(left, right))
+    await ctx.respond("Vote", view=votegary.VoteView())
 
 
 @bot.command()
