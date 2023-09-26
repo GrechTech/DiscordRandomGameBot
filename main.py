@@ -62,11 +62,12 @@ async def consoles(ctx):
 
 @bot.command()
 async def calc(ctx, *, input_val: str):
-    print(ctx.message.author.name)
     print("Calc ")
-    result = mathparse.parse(input_val, language='ENG')
+    print(ctx.message.author.name)
+    print(input_val)
+    # result = mathparse.parse(input_val, language='ENG')
     print(str(result))
-    await ctx.channel.send(str(result))
+    #await ctx.channel.send(str(result))
 
 
 @bot.command()  # Create a slash command
