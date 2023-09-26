@@ -13,7 +13,8 @@ TOKEN = ""  # From Config / token.txt
 
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 token_path = os.path.join(dir_path, "Config", "token.txt")
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 if not os.path.exists(token_path):
