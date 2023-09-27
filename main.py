@@ -66,7 +66,7 @@ async def calc(ctx, *, input_val: str):
     print(ctx.message.author.name)
     print(input_val)
     # result = mathparse.parse(input_val, language='ENG')
-    print(str(result))
+    # print(str(result))
     #await ctx.channel.send(str(result))
 
 
