@@ -211,9 +211,7 @@ def verify_url(content):
 async def snail_search(ctx, bot, date_type):
     entries = {}
     print("## Retrieving messages")
-    messages = await ctx.channel.history(after=get_date(date_type)).flatten()
-    print("## Loading messages")
-    for message in messages:
+    async for message in ctx.channel.history(after=get_date(date_type)):
         if not message.author.bot and verify_url(message.content):
             for react in message.reactions:
                 if '\U0001F40C' == react.emoji \
