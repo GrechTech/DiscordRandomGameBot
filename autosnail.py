@@ -182,17 +182,17 @@ async def auto_snail_safe(message, bot):
         await message.channel.send(embed=embed)
 
 
-def get_date(type):
-    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+def get_date(date_type):
+    today = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
     this_month = today.replace(day=1)
     this_year = this_month.replace(month=1)
-    if type == 'l':  # First day of leaderboards
+    if date_type == 'l':  # First day of leaderboards
         return datetime.date(2013, 8, 15)
-    elif type == 'd':
+    elif date_type == 'd':
         return today
-    elif type == 'm':
+    elif date_type == 'm':
         return this_month
-    elif type == 'y':
+    elif date_type == 'y':
         return this_year
 
 
