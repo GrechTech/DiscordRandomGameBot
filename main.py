@@ -141,9 +141,6 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingPermissions):
         print("**You dont have all the requirements or permissions for using this command**")
         await ctx.send("**You dont have all the requirements or permissions for using this command**")
-    else:
-        print(str(error))
-        await ctx.send(str(error))
 
 
 # Start

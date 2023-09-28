@@ -112,7 +112,7 @@ async def snail_scores(id_val, score_delta):
         file.write(str(score))
 
 
-async def check_valid_url(url):
+def check_valid_url(url):
     to_check = ['framed.wtf', 'timeguessr.com', 'oec.world/en/tradle', ' moviedle.app', 'squirdle.fireblend.com',
                 'sweardle.com/herdle', '.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
     name_delete = ["www.", "m.", "https://", "http://"]
