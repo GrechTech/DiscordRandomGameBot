@@ -182,7 +182,7 @@ async def auto_snail_safe(message, bot):
         await message.channel.send(embed=embed)
 
 
-async def get_date(type):
+def get_date(type):
     today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
     this_month = today.replace(day=1)
     this_year = this_month.replace(month=1)
@@ -223,7 +223,7 @@ async def snail_search(ctx, bot, date_type):
                         entries[message.author.name] += 1
                 if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
                     print("## Snail Found (x2) " + message.author.name)
-                    if message.author.id not in entries:
+                    if message.author.name not in entries:
                         entries[message.author.name] = 2
                     else:
                         entries[message.author.name] += 2
