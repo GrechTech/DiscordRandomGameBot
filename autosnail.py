@@ -229,25 +229,27 @@ async def snail_search(ctx, bot, date_type):
     entries = {}
     print("## Retrieving messages")
     counter = 0
-    async for message in ctx.channel.history(after=get_date(date_type)):
-        if not message.author.bot:
+    async for message in ctx.channel.history(after=get_date(date_type), limit=None):
+        if not message.author.bot and verify_url(message.content):
             counter += 1
             if counter % 100 == 0:
                 print(counter)
             for react in message.reactions:
-                if '\U0001F40C' == react.emoji \
-                        or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
-                    print("## Snail Found " + message.author.name)
-                    if message.author.name not in entries:
-                        entries[message.author.name] = 1
-                    else:
-                        entries[message.author.name] += 1
-                if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
-                    print("## Snail Found (x2) " + message.author.name)
-                    if message.author.name not in entries:
-                        entries[message.author.name] = 2
-                    else:
-                        entries[message.author.name] += 2
+                users = [user async for user in react.users()]
+                if bot.user in users:
+                    if '\U0001F40C' == react.emoji \
+                            or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
+                        print("## Snail Found " + message.author.name)
+                        if message.author.name not in entries:
+                            entries[message.author.name] = 1
+                        else:
+                            entries[message.author.name] += 1
+                    if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
+                        print("## Snail Found (x2) " + message.author.name)
+                        if message.author.name not in entries:
+                            entries[message.author.name] = 2
+                        else:
+                            entries[message.author.name] += 2
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())

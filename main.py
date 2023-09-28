@@ -57,7 +57,7 @@ async def leaderboards(ctx):
 
 
 @bot.command()
-async def newleaderboards(ctx, type='l'):
+async def newleaderboards(ctx, type='m'):
     await ctx.channel.send(embed=await autosnail.snail_search(ctx, bot, type))
 
 
