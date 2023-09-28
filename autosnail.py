@@ -187,7 +187,7 @@ def get_date(date_type):
     this_month = today.replace(day=1)
     this_year = this_month.replace(month=1)
     if date_type == 'l':  # First day of leaderboards
-        return datetime.date(2013, 8, 15)
+        return datetime.date(2023, 8, 15)
     elif date_type == 'd':
         return today
     elif date_type == 'm':
