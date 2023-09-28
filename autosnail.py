@@ -120,6 +120,7 @@ def check_valid_url(url):
     output_url = ""
     clean_url = url.rstrip().lower()
     if not [ele for ele in to_check if (ele in clean_url)]:
+        print(clean_url)
         if "youtube.com/watch?v=" in clean_url:
             clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
         clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
@@ -128,17 +129,33 @@ def check_valid_url(url):
         for name in x_name:
             clean_url = clean_url.replace(name, "x")
         output_url = clean_url
+    
     return output_url
 
 
 async def auto_snail(message, bot):
     urls = find_url(message.content)
+    name_delete = ["www.", "m.", "https://", "http://"]
+    x_name = ["fxtwitter", "vxtwitter", "twitter"]
     # Check message for url
     if len(urls) > 0:
         for url in urls:
-            clean_url = check_valid_url(url)
-            if clean_url != "":
+            snail = False
+            clean_url = url.rstrip().lower()
+            to_check = ['.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
+            if not [ele for ele in to_check if (ele in clean_url)]:
+                if "youtube.com/watch?v=" in clean_url:
+                    clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
+                clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
+                for name in name_delete:
+                    clean_url = clean_url.replace(name, "")
+                for name in x_name:
+                    clean_url = clean_url.replace(name, "x")
                 if await autosnail_find(urls_path, clean_url, message.author.id):
+                    snail = True
+
+                # Snail if snailable, else add to list
+                if snail:
                     print("Snail Hit")
                     double_snail = False
                     # Sparkle/double snail
@@ -211,8 +228,12 @@ def verify_url(content):
 async def snail_search(ctx, bot, date_type):
     entries = {}
     print("## Retrieving messages")
+    counter = 0
     async for message in ctx.channel.history(after=get_date(date_type)):
-        if not message.author.bot and verify_url(message.content):
+        if not message.author.bot:
+            counter += 1
+            if counter % 100 == 0:
+                print(counter)
             for react in message.reactions:
                 if '\U0001F40C' == react.emoji \
                         or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
