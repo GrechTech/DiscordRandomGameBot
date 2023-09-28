@@ -55,8 +55,10 @@ async def autosnail_find(path, clean_url, author_id):
 
     return snail
 
+
 def argsort(seq):
     return sorted(range(len(seq)), key=seq.__getitem__)
+
 
 async def leaderboard(bot):
     print("Leaderboards")
@@ -108,9 +110,11 @@ async def snail_scores(id_val, score_delta):
     score += score_delta
     with open(score_path, "w+") as file:
         file.write(str(score))
-        
+
+
 async def check_valid_url(url):
-    to_check = ['framed.wtf', 'timeguessr.com','oec.world/en/tradle', ' moviedle.app', 'squirdle.fireblend.com', 'sweardle.com/herdle','.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
+    to_check = ['framed.wtf', 'timeguessr.com', 'oec.world/en/tradle', ' moviedle.app', 'squirdle.fireblend.com',
+                'sweardle.com/herdle', '.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
     name_delete = ["www.", "m.", "https://", "http://"]
     x_name = ["fxtwitter", "vxtwitter", "twitter"]
     output_url = ""
@@ -177,13 +181,12 @@ async def auto_snail_safe(message, bot):
                         inline=True)
         await message.channel.send(embed=embed)
 
-this_year = datetime.date(2023, 1, 1)
 
 async def get_date(type):
     today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-    this_month = today.replace(day = 1)
-    this_year = this_month.replace(month = 1)
-    if type == 'l': # First day of leaderboards
+    this_month = today.replace(day=1)
+    this_year = this_month.replace(month=1)
+    if type == 'l':  # First day of leaderboards
         return datetime.date(2013, 8, 15)
     elif type == 'd':
         return today
@@ -191,36 +194,38 @@ async def get_date(type):
         return this_month
     elif type == 'y':
         return this_year
-    
+
+
 def verify_url(content):
     urls = find_url(content)
     # Check message for url
     valid = False
     if len(urls) > 0:
         for url in urls:
-            clean_url = check_valid_url(urls[0])
+            clean_url = check_valid_url(url)
             if clean_url != "":
                 valid = True
     return valid
-    
+
+
 async def snail_search(ctx, bot, date_type):
     entries = {}
     print("## Retrieving messages")
-    messages = await ctx.channel.history(after = get_date(date_type)).flatten()
+    messages = await ctx.channel.history(after=get_date(date_type)).flatten()
     print("## Loading messages")
     for message in messages:
         if not message.author.bot and verify_url(message.content):
             for react in message.reactions:
                 if '\U0001F40C' == react.emoji \
                         or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
-                                print("## Snail Found " + message.author.name)
-                                if not message.author.name in entries:
-                                    entries[message.author.name] = 1
-                                else:
-                                    entries[message.author.name] += 1
+                    print("## Snail Found " + message.author.name)
+                    if message.author.name not in entries:
+                        entries[message.author.name] = 1
+                    else:
+                        entries[message.author.name] += 1
                 if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
                     print("## Snail Found (x2) " + message.author.name)
-                    if not message.author.id in entries:
+                    if message.author.id not in entries:
                         entries[message.author.name] = 2
                     else:
                         entries[message.author.name] += 2
@@ -231,6 +236,7 @@ async def snail_search(ctx, bot, date_type):
     entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
 
     # Output
+    embed_message = ""
     for key, value in entries_sorted.items():
         embed_message += str(key).split('#')[0] + ": " + str(value) + "\n"
     embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)

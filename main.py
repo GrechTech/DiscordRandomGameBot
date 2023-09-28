@@ -54,10 +54,10 @@ async def health(ctx):
 @bot.command()
 async def leaderboards(ctx):
     await ctx.channel.send(embed=await autosnail.leaderboard(bot))
-    
-    
+
+
 @bot.command()
-async def newleaderboards(ctx, type = 'l'):
+async def newleaderboards(ctx, type='l'):
     await ctx.channel.send(embed=await autosnail.snail_search(ctx, bot, type))
 
 
@@ -74,7 +74,7 @@ async def calc(ctx, *, input_val: str):
     print(input_val)
     # result = mathparse.parse(input_val, language='ENG')
     # print(str(result))
-    #await ctx.channel.send(str(result))
+    # await ctx.channel.send(str(result))
 
 
 @bot.command()  # Create a slash command
