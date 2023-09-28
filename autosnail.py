@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import time
@@ -107,31 +108,33 @@ async def snail_scores(id_val, score_delta):
     score += score_delta
     with open(score_path, "w+") as file:
         file.write(str(score))
+        
+async def check_valid_url(url):
+    to_check = ['framed.wtf', 'timeguessr.com','oec.world/en/tradle', ' moviedle.app', 'squirdle.fireblend.com', 'sweardle.com/herdle','.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
+    name_delete = ["www.", "m.", "https://", "http://"]
+    x_name = ["fxtwitter", "vxtwitter", "twitter"]
+    output_url = ""
+    clean_url = url.rstrip().lower()
+    if not [ele for ele in to_check if (ele in clean_url)]:
+        if "youtube.com/watch?v=" in clean_url:
+            clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
+        clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
+        for name in name_delete:
+            clean_url = clean_url.replace(name, "")
+        for name in x_name:
+            clean_url = clean_url.replace(name, "x")
+        output_url = clean_url
+    return output_url
 
 
 async def auto_snail(message, bot):
     urls = find_url(message.content)
-    name_delete = ["www.", "m.", "https://", "http://"]
-    x_name = ["fxtwitter", "vxtwitter", "twitter"]
     # Check message for url
     if len(urls) > 0:
         for url in urls:
-            snail = False
-            clean_url = url.rstrip().lower()
-            to_check = ['.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
-            if not [ele for ele in to_check if (ele in clean_url)]:
-                if "youtube.com/watch?v=" in clean_url:
-                    clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
-                clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
-                for name in name_delete:
-                    clean_url = clean_url.replace(name, "")
-                for name in x_name:
-                    clean_url = clean_url.replace(name, "x")
+            clean_url = check_valid_url(url)
+            if clean_url != "":
                 if await autosnail_find(urls_path, clean_url, message.author.id):
-                    snail = True
-
-                # Snail if snailable, else add to list
-                if snail:
                     print("Snail Hit")
                     double_snail = False
                     # Sparkle/double snail
@@ -173,3 +176,63 @@ async def auto_snail_safe(message, bot):
                               "Garry. Attempting to bypass Garry is a serious offence that can warrant snail time.",
                         inline=True)
         await message.channel.send(embed=embed)
+
+this_year = datetime.date(2023, 1, 1)
+
+async def get_date(type):
+    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    this_month = today.replace(day = 1)
+    this_year = this_month.replace(month = 1)
+    if type == 'l': # First day of leaderboards
+        return datetime.date(2013, 8, 15)
+    elif type == 'd':
+        return today
+    elif type == 'm':
+        return this_month
+    elif type == 'y':
+        return this_year
+    
+def verify_url(content):
+    urls = find_url(content)
+    # Check message for url
+    valid = False
+    if len(urls) > 0:
+        for url in urls:
+            clean_url = check_valid_url(urls[0])
+            if clean_url != "":
+                valid = True
+    return valid
+    
+async def snail_search(ctx, bot, date_type):
+    entries = {}
+    print("## Retrieving messages")
+    messages = await ctx.channel.history(after = get_date(date_type)).flatten()
+    print("## Loading messages")
+    for message in messages:
+        if not message.author.bot and verify_url(message.content):
+            for react in message.reactions:
+                if '\U0001F40C' == react.emoji \
+                        or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
+                                print("## Snail Found " + message.author.name)
+                                if not message.author.name in entries:
+                                    entries[message.author.name] = 1
+                                else:
+                                    entries[message.author.name] += 1
+                if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
+                    print("## Snail Found (x2) " + message.author.name)
+                    if not message.author.id in entries:
+                        entries[message.author.name] = 2
+                    else:
+                        entries[message.author.name] += 2
+    # Sort dictionary
+    entries_keys = list(entries.keys())
+    entries_values = list(entries.values())
+    entries_sorted_value_index = argsort(entries_values)
+    entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
+
+    # Output
+    for key, value in entries_sorted.items():
+        embed_message += str(key).split('#')[0] + ": " + str(value) + "\n"
+    embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
+    print(embed)
+    return embed

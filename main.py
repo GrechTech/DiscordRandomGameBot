@@ -16,6 +16,8 @@ TOKEN = ""  # From Config / token.txt
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 token_path = os.path.join(dir_path, "Config", "token.txt")
 intents = discord.Intents.default()
+intents.guilds = True
+intents.messages = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -35,7 +37,7 @@ def get_cpu_temp():
     temp_file = open("/sys/class/thermal/thermal_zone0/temp")
     cpu_temp = temp_file.read()
     temp_file.close()
-    return round(float(cpu_temp) / 1000, 2)
+    return round(float(cpu_temp) / 1000, 3)
 
 
 @bot.command()
@@ -52,6 +54,11 @@ async def health(ctx):
 @bot.command()
 async def leaderboards(ctx):
     await ctx.channel.send(embed=await autosnail.leaderboard(bot))
+    
+    
+@bot.command()
+async def newleaderboards(ctx, type = 'l'):
+    await ctx.channel.send(embed=await autosnail.snail_search(ctx, bot, type))
 
 
 @bot.command()
