@@ -1,3 +1,4 @@
+import asyncio
 from random import random
 import psutil
 import os
@@ -50,6 +51,10 @@ async def health(ctx):
 
 
 @bot.command()
+async def updateleaderboards(ctx):
+    await autosnail.get_history(bot)
+
+@bot.command()
 async def leaderboards(ctx):
     await ctx.channel.send(embed=await autosnail.leaderboard(bot))
 
@@ -91,8 +96,6 @@ async def roll(ctx, inpt: int):
 @bot.event
 async def on_ready():
     print(f'{bot.user} successfully logged in!')
-    await autosnail.get_history(bot)
-
 
 @bot.event
 # AUTOSNAIL

@@ -120,7 +120,6 @@ def check_valid_url(url):
     output_url = ""
     clean_url = url.rstrip().lower()
     if not [ele for ele in to_check if (ele in clean_url)]:
-        print(clean_url)
         if "youtube.com/watch?v=" in clean_url:
             clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
         clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
@@ -224,6 +223,7 @@ def verify_url(content):
             clean_url = check_valid_url(url)
             if clean_url != "":
                 valid = True
+                print(clean_url)
     return valid
 
 
@@ -239,13 +239,14 @@ async def get_history(bot):
     for guild in bot.guilds:
         for channel in guild.text_channels:
             message_store = []
-            async for message in channel.history(after=datetime(2022, 3, 17), limit=None):
+            async for message in channel.history(after=datetime(2022, 3, 17), limit=None, oldest_first = False):
                 if not message.author.bot and verify_url(message.content):
                     counter += 1
                     if counter % 1000 == 0:
                         print(counter)
                         oldest_datetime = message.created_at
-                    message_store += message
+                    message_store.append(message)
+            print(channel.id)
             message_archive[channel.id] = message_store
     latest_datetime = datetime.now()
 
@@ -259,7 +260,7 @@ async def update_history(bot):
             counter += 1
             if counter % 1000 == 0:
                 print(counter)
-            entries_update = [message async for message in channel.history(after=latest_datetime, limit=None) if
+            entries_update = [message async for message in channel.history(after=latest_datetime, limit=None, oldest_first = False) if
                               not message.author.bot and verify_url(message.content)]
             latest_datetime = datetime.now()
             message_archive[channel.id] = entries_update + message_archive[channel.id]
