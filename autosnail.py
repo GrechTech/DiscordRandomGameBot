@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 import re
 import time
@@ -200,13 +200,13 @@ async def auto_snail_safe(message, bot):
 
 
 def get_date(date_type):
-    today = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
     this_month = today.replace(day=1)
     this_year = this_month.replace(month=1)
     if date_type == 'l':  # First day of leaderboards
-        return datetime.date(2023, 8, 15)
+        return datetime(2023, 8, 15)
     elif date_type == "birthday":
-        return datetime.date(2022, 3, 17)
+        return datetime(2022, 3, 17)
     elif date_type == "day":
         return today
     elif date_type == "month":
@@ -228,8 +228,8 @@ def verify_url(content):
 
 
 message_archive = {}
-latest_datetime = datetime.date(2000, 1, 1)
-oldest_datetime = datetime.date(2000, 1, 1)
+latest_datetime = datetime(2000, 1, 1)
+oldest_datetime = datetime(2000, 1, 1)
 
 
 async def get_history(bot):
@@ -239,7 +239,7 @@ async def get_history(bot):
     for guild in bot.guilds:
         for channel in guild.text_channels:
             message_store = []
-            async for message in channel.history(after=datetime.date(2022, 3, 17), limit=None):
+            async for message in channel.history(after=datetime(2022, 3, 17), limit=None):
                 if not message.author.bot and verify_url(message.content):
                     counter += 1
                     if counter % 1000 == 0:
@@ -247,7 +247,7 @@ async def get_history(bot):
                         oldest_datetime = message.created_at
                     message_store += message
             message_archive[channel.id] = message_store
-    latest_datetime = datetime.datetime.now()
+    latest_datetime = datetime.now()
 
 
 async def update_history(bot):
@@ -261,7 +261,7 @@ async def update_history(bot):
                 print(counter)
             entries_update = [message async for message in channel.history(after=latest_datetime, limit=None) if
                               not message.author.bot and verify_url(message.content)]
-            latest_datetime = datetime.datetime.now()
+            latest_datetime = datetime.now()
             message_archive[channel.id] = entries_update + message_archive[channel.id]
 
 
