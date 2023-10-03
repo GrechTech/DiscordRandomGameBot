@@ -1,8 +1,6 @@
 from random import random
-import sys
 import psutil
 import os
-from mathparse import mathparse
 import discord
 from discord.ext import commands
 import wordlist
@@ -57,7 +55,7 @@ async def leaderboards(ctx):
 
 
 @bot.command()
-async def newleaderboards(ctx, type='m'):
+async def newleaderboards(ctx, type='l'):
     await ctx.channel.send(embed=await autosnail.snail_search(ctx, bot, type))
 
 
@@ -93,6 +91,7 @@ async def roll(ctx, inpt: int):
 @bot.event
 async def on_ready():
     print(f'{bot.user} successfully logged in!')
+    await autosnail.get_history(bot)
 
 
 @bot.event

@@ -129,7 +129,7 @@ def check_valid_url(url):
         for name in x_name:
             clean_url = clean_url.replace(name, "x")
         output_url = clean_url
-    
+
     return output_url
 
 
@@ -205,11 +205,13 @@ def get_date(date_type):
     this_year = this_month.replace(month=1)
     if date_type == 'l':  # First day of leaderboards
         return datetime.date(2023, 8, 15)
-    elif date_type == 'd':
+    elif date_type == "birthday":
+        return datetime.date(2022, 3, 17)
+    elif date_type == "day":
         return today
-    elif date_type == 'm':
+    elif date_type == "month":
         return this_month
-    elif date_type == 'y':
+    elif date_type == "year":
         return this_year
 
 
@@ -225,31 +227,81 @@ def verify_url(content):
     return valid
 
 
+message_archive = {}
+latest_datetime = datetime.date(2000, 1, 1)
+oldest_datetime = datetime.date(2000, 1, 1)
+
+
+async def get_history(bot):
+    global message_archive, latest_datetime, oldest_datetime
+    counter = 0
+    print("## Get history")
+    for guild in bot.guilds:
+        for channel in guild.text_channels:
+            message_store = []
+            async for message in channel.history(after=datetime.date(2022, 3, 17), limit=None):
+                if not message.author.bot and verify_url(message.content):
+                    counter += 1
+                    if counter % 1000 == 0:
+                        print(counter)
+                        oldest_datetime = message.created_at
+                    message_store += message
+            message_archive[channel.id] = message_store
+    latest_datetime = datetime.datetime.now()
+
+
+async def update_history(bot):
+    print("## Update history")
+    global message_archive, latest_datetime
+    counter = 0
+    for guild in bot.guilds:
+        for channel in guild.text_channels:
+            counter += 1
+            if counter % 1000 == 0:
+                print(counter)
+            entries_update = [message async for message in channel.history(after=latest_datetime, limit=None) if
+                              not message.author.bot and verify_url(message.content)]
+            latest_datetime = datetime.datetime.now()
+            message_archive[channel.id] = entries_update + message_archive[channel.id]
+
+
 async def snail_search(ctx, bot, date_type):
     entries = {}
-    print("## Retrieving messages")
+    date_value = get_date(date_type)
+    if date_value < oldest_datetime:
+        print("## Waiting for messages")
+        embed = discord.Embed(title="Snail Score List Updating", description="Please try again later", color=0xF6B600)
+        return embed
+    print("## Retrieving new messages")
+    await update_history(ctx.channel)
+    print("## Messages retrieved")
     counter = 0
-    async for message in ctx.channel.history(after=get_date(date_type), limit=None):
-        if not message.author.bot and verify_url(message.content):
-            counter += 1
-            if counter % 100 == 0:
+    for message_store in message_archive:
+        for message in message_store:
+            if message.created_at < date_value:
+                print("Last value")
                 print(counter)
-            for react in message.reactions:
-                users = [user async for user in react.users()]
-                if bot.user in users:
-                    if '\U0001F40C' == react.emoji \
-                            or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
-                        print("## Snail Found " + message.author.name)
-                        if message.author.name not in entries:
-                            entries[message.author.name] = 1
-                        else:
-                            entries[message.author.name] += 1
-                    if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
-                        print("## Snail Found (x2) " + message.author.name)
-                        if message.author.name not in entries:
-                            entries[message.author.name] = 2
-                        else:
-                            entries[message.author.name] += 2
+                break
+            if not message.author.bot and verify_url(message.content):
+                counter += 1
+                if counter % 1000 == 0:
+                    print(counter)
+                for react in message.reactions:
+                    users = [user async for user in react.users()]
+                    if bot.user in users:
+                        if '\U0001F40C' == react.emoji \
+                                or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
+                            print("## Snail Found " + message.author.name)
+                            if message.author.name not in entries:
+                                entries[message.author.name] = 1
+                            else:
+                                entries[message.author.name] += 1
+                        if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
+                            print("## Snail Found (x2) " + message.author.name)
+                            if message.author.name not in entries:
+                                entries[message.author.name] = 2
+                            else:
+                                entries[message.author.name] += 2
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())
