@@ -124,32 +124,33 @@ async def auto_snail(message, bot):
     if len(urls) > 0:
         for url in urls:
             clean_url = check_valid_url(url)
-            if await autosnail_find(urls_path, clean_url, message.author.id):
-                print("Snail Hit")
-                double_snail = False
-                # Sparkle/double snail
-                if await autosnail_find(urls_snailed_path, clean_url, message.author.id):
-                    double_snail = True
+            if clean_url != "":
+                if await autosnail_find(urls_path, clean_url, message.author.id):
+                    print("Snail Hit")
+                    double_snail = False
+                    # Sparkle/double snail
+                    if await autosnail_find(urls_snailed_path, clean_url, message.author.id):
+                        double_snail = True
 
-                # Normal snail
-                emoji = '\U0001F40C'  # Snail
-                if message.author.id == 178130280400420864:  # Jaysnail
-                    emoji = discord.utils.get(bot.emojis, name="snailuri")  # '<:snailuri:968161545035071498>'
-                if double_snail:
-                    emoji = discord.utils.get(bot.emojis, name="sparklesnail")  # '<:sparklesnail:>'
-                    await snail_scores(message.author.id, 2)
+                    # Normal snail
+                    emoji = '\U0001F40C'  # Snail
+                    if message.author.id == 178130280400420864:  # Jaysnail
+                        emoji = discord.utils.get(bot.emojis, name="snailuri")  # '<:snailuri:968161545035071498>'
+                    if double_snail:
+                        emoji = discord.utils.get(bot.emojis, name="sparklesnail")  # '<:sparklesnail:>'
+                        await snail_scores(message.author.id, 2)
+                    else:
+                        await snail_scores(message.author.id, 1)
+                        with open(urls_snailed_path, "a+") as file:
+                            newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
+                            file.write(newline)
+
+                    await message.add_reaction(emoji)
+                    return True
                 else:
-                    await snail_scores(message.author.id, 1)
-                    with open(urls_snailed_path, "a+") as file:
+                    with open(urls_path, "a+") as file:
                         newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
                         file.write(newline)
-
-                await message.add_reaction(emoji)
-                return True
-            else:
-                with open(urls_path, "a+") as file:
-                    newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
-                    file.write(newline)
     return False
 
 
@@ -260,12 +261,15 @@ async def get_history(bot, update):
     print("## Get history")
     for guild in bot.guilds:
         for channel in guild.text_channels:
-            message_store = []
+            message_store = await read_messages(channel.id)
             selected_date = datetime(2022, 3, 17)
+            before_date = datetime.now()
             if update:
                 selected_date = latest_datetime
-                message_store = read_messages(channel.id)
-            async for message in channel.history(after=selected_date, limit=None, oldest_first=False):
+            else:
+                before_date = message_store[-1].created_at
+            async for message in channel.history(after=selected_date, before=before_date, limit=None,
+                                                 oldest_first=False):
                 if (not message.author.bot) and verify_url(message.content):
                     snails = 0
                     for react in message.reactions:
@@ -279,7 +283,10 @@ async def get_history(bot, update):
                                 snails = 2
                                 print("## Double Snail Found " + message.author.name)
                     message_item = MessageData(message.author.name, message.created_at, snails, message.content)
-                    message_store.append(message_item)
+                    if update:
+                        message_store.insert(0, message_item)
+                    else:
+                        message_store.append(message_item)
                     counter += 1
                     if counter % 100 == 0:
                         print(counter)

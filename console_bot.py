@@ -141,7 +141,7 @@ class Console:
 
         n = 0
         message_title = ""
-        message_score = ""
+        message_desc = ""
         line = get_csv_line(item_path, index)
         for item in line:
             print(item)
@@ -158,13 +158,15 @@ class Console:
                     message_title = message_title.rstrip()
                 if n == self.columns.year:
                     message_desc += ('Year: ' + item + '\n')
+                if n == self.columns.developer:
+                    message_desc += ('Developer: ' + item + '\n')
                 n += 1
 
         # Create wikipedia URL
         message_url = "https://en.wikipedia.org/wiki/" + message_title.replace(' ', '_').replace('_-_', ':_')
         message_title_output = message_title + " (" + self.name.replace('.csv', '').upper() + ")"
         # Create message body
-        embed = discord.Embed(title=message_title_output, url=message_url, description=message_score, color=0xFF1694)
+        embed = discord.Embed(title=message_title_output, url=message_url, description=message_desc, color=0xFF1694)
         result = imagesearch.do_search(message_title_output + " box art")
         print("Search result: ", result)
         embed.set_thumbnail(url=result)
