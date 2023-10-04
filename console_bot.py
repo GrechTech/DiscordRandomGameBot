@@ -156,6 +156,8 @@ class Console:
                     if ", The" in message_title:
                         message_title = "The " + message_title.replace(", The", "")
                     message_title = message_title.rstrip()
+                if n == self.columns.year:
+                    message_desc += ('Year: ' + item + '\n')
                 n += 1
 
         # Create wikipedia URL
@@ -163,7 +165,9 @@ class Console:
         message_title_output = message_title + " (" + self.name.replace('.csv', '').upper() + ")"
         # Create message body
         embed = discord.Embed(title=message_title_output, url=message_url, description=message_score, color=0xFF1694)
-        print(index)
+        result = imagesearch.do_search(message_title_output + " box art")
+        print("Search result: ", result)
+        embed.set_thumbnail(url=result)
         return embed
 
 
