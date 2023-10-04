@@ -1,5 +1,8 @@
 from datetime import datetime
+from datetime import timezone
+from datetime import timedelta
 import os
+import pickle
 import re
 import time
 import discord
@@ -8,6 +11,7 @@ dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 urls_path = os.path.join(dir_path, "Config", "urls.txt")
 urls_snailed_path = os.path.join(dir_path, "Config", "urls_snailed.txt")
 urls_scores_path = os.path.join(dir_path, "Config", "Scores")
+activity_path = os.path.join(dir_path, "Config", "Activity")
 
 if not os.path.exists(urls_path):
     with open(urls_path, "w+") as f:
@@ -17,6 +21,8 @@ if not os.path.exists(urls_path):
         f.write('')
 if not os.path.exists(urls_scores_path):
     os.mkdir(urls_scores_path)
+if not os.path.exists(activity_path):
+    os.mkdir(activity_path)
 
 
 # Auto Snail find URL
@@ -179,18 +185,21 @@ async def auto_snail_safe(message, bot):
 
 
 def get_date(date_type):
-    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
     this_month = today.replace(day=1)
     this_year = this_month.replace(month=1)
+    yesterday = today - timedelta(days=1)
     if date_type == 'l':  # First day of leaderboards
-        return datetime(2023, 8, 15)
+        return datetime(2023, 8, 15, tzinfo=timezone.utc)
     elif date_type == "birthday":
-        return datetime(2022, 3, 17)
-    elif date_type == "day":
+        return datetime(2022, 3, 17, tzinfo=timezone.utc)
+    elif date_type == "today" or date_type == "day" or date_type == "d":
         return today
-    elif date_type == "month":
+    elif date_type == "yesterday":
+        return yesterday
+    elif date_type == "month" or date_type == "m":
         return this_month
-    elif date_type == "year":
+    elif date_type == "year" or date_type == "y":
         return this_year
 
 
@@ -228,13 +237,29 @@ class MessageData:
         self.content = content
 
 
-message_archive = {}
-latest_datetime = datetime(2000, 1, 1)
-oldest_datetime = datetime(2000, 1, 1)
+latest_datetime = datetime(2000, 1, 1, tzinfo=timezone.utc)
+oldest_datetime = datetime(2000, 1, 1, tzinfo=timezone.utc)
+
+
+async def store_messages(channel_id, messages):
+    print("Write start")
+    with open(os.path.join(activity_path, str(channel_id)), "w+") as outfile:
+        pickle.dump(messages, outfile)
+        print("Write successful")
+
+
+async def read_messages(channel_id):
+    print("Read Start")
+    with open(os.path.join(activity_path, str(channel_id)), 'rb') as infile:
+        # Reading from json file
+        message_json = pickle.load(infile)
+        print("Type1: " + str(type(message_json)))
+        print("Read successful")
+    return message_json
 
 
 async def get_history(bot, update):
-    global message_archive, latest_datetime, oldest_datetime
+    global latest_datetime, oldest_datetime
     counter = 0
     print("## Get history")
     for guild in bot.guilds:
@@ -243,13 +268,10 @@ async def get_history(bot, update):
             selected_date = datetime(2022, 3, 17)
             if update:
                 selected_date = latest_datetime
+                message_store = read_messages(channel.id)
             async for message in channel.history(after=selected_date, limit=None, oldest_first=False):
                 if (not message.author.bot) and verify_url(message.content):
                     snails = 0
-                    counter += 1
-                    if counter % 1000 == 0:
-                        print(counter)
-                        oldest_datetime = message.created_at
                     for react in message.reactions:
                         users = [user async for user in react.users()]
                         if bot.user in users:
@@ -262,42 +284,50 @@ async def get_history(bot, update):
                                 print("## Double Snail Found " + message.author.name)
                     message_item = MessageData(message.author.name, message.created_at, snails, message.content)
                     message_store.append(message_item)
+                    counter += 1
+                    if counter % 100 == 0:
+                        print(counter)
+                        oldest_datetime = message.created_at
+                        await store_messages(channel.id, message_store)
             print(channel.id)
-            if update:
-                message_archive[channel.id] = message_store + message_archive[channel.id]
-            else:
-                message_archive[channel.id] = message_store
+            await store_messages(channel.id, message_store)
     latest_datetime = datetime.now()
 
 
 async def write_leaderboard(ctx, date_type):
     entries = {}
     date_value = get_date(date_type)
+    waiting = date_value < oldest_datetime
     print("Date Value: " + str(date_value))
     print("Oldest date: " + str(oldest_datetime))
-    if date_value < oldest_datetime:
-        print("## Waiting for messages")
+    print("Waiting: " + str(waiting))
+    if waiting:
+        print("## Waiting for more messages")
         embed = discord.Embed(title="Snail Score List Updating", description="Please try again later", color=0xF6B600)
         return embed
-    print("## Retrieving new messages")
-    await get_history(ctx.channel, True)
-    print("## Messages retrieved")
+    print("## Checking messages")
+    if latest_datetime != datetime(2000, 1, 1, tzinfo=timezone.utc):
+        print("## Updating new messages")
+        await get_history(ctx.channel, True)
+    print("## Messages ready")
     counter = 0
-    for message_store in message_archive:
-        for message in message_store:
-            if message.created_at < date_value:
-                print("Last value")
-                print(counter)
-                break
-            counter += 1
-            if counter % 1000 == 0:
-                print(counter)
-            if message.snails > 0:
-                if message.author_name not in entries:
-                    entries[message.author_name] = message.snails
-                else:
-                    entries[message.author_name] += message.snails
-
+    message_store = read_messages(ctx.channel.id)
+    print("## Store ID: " + str(ctx.channel.id))
+    print("## Store size: " + str(len(message_store)))
+    for message in message_store:
+        if message.created_at < date_value:
+            print("## Last value")
+            print(counter)
+            break
+        counter += 1
+        if counter % 10 == 0:
+            print(counter)
+        if message.snails > 0:
+            if message.author_name not in entries:
+                entries[message.author_name] = message.snails
+            else:
+                entries[message.author_name] += message.snails
+    print("## Snails counted")
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())

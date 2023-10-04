@@ -27,7 +27,6 @@ def current_word():
 
 
 def check_month_passed():
-    date = 0
     with open(cur_word_date_path) as file:
         date = int(file.readline().rstrip().lower())
     return int(time.time()) - date > (86400 * 28)
@@ -74,12 +73,15 @@ def message_check(message, text):
         return True
     if message.embeds is not None and len(message.embeds) > 0:
         print(message.embeds)
-        if text in message.embeds[0].description:
-            return True
-        if text in message.embeds[0].title:
-            return True
-        if text in message.embeds[0].url:
-            return True
+        if message.embeds[0].description is not None and len(message.embeds[0].description) > 0:
+            if text in message.embeds[0].description:
+                return True
+        if message.embeds[0].title is not None and len(message.embeds[0].title) > 0:
+            if text in message.embeds[0].title:
+                return True
+        if message.embeds[0].url is not None and len(message.embeds[0].url) > 0:
+            if text in message.embeds[0].url:
+                return True
     return False
 
 
