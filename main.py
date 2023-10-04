@@ -27,6 +27,12 @@ with open(token_path, "r") as f:
     TOKEN = f.readline().rstrip()
 
 
+@bot.event
+async def on_ready():
+    print(f'{bot.user} successfully logged in!')
+    await asyncio.to_thread(await autosnail.get_history(bot, False))
+
+
 # Discord functionality
 def check_reply(message):
     return message.reference is not None and message.is_system
@@ -51,17 +57,13 @@ async def health(ctx):
 
 
 @bot.command()
-async def updateleaderboards(ctx):
-    await autosnail.get_history(bot)
-
-@bot.command()
 async def leaderboards(ctx):
     await ctx.channel.send(embed=await autosnail.leaderboard(bot))
 
 
 @bot.command()
-async def newleaderboards(ctx, type='l'):
-    await ctx.channel.send(embed=await autosnail.snail_search(ctx, bot, type))
+async def newleaderboards(ctx, date_type='l'):
+    await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, date_type))
 
 
 @bot.command()
@@ -92,10 +94,6 @@ async def roll(ctx, inpt: int):
     print(str(inpt), " ", str(result))
     await ctx.channel.send(str(result))
 
-
-@bot.event
-async def on_ready():
-    print(f'{bot.user} successfully logged in!')
 
 @bot.event
 # AUTOSNAIL

@@ -112,26 +112,6 @@ async def snail_scores(id_val, score_delta):
         file.write(str(score))
 
 
-def check_valid_url(url):
-    to_check = ['framed.wtf', 'timeguessr.com', 'oec.world/en/tradle', ' moviedle.app', 'squirdle.fireblend.com',
-                'sweardle.com/herdle', '.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
-    name_delete = ["www.", "m.", "https://", "http://"]
-    x_name = ["fxtwitter", "vxtwitter", "twitter"]
-    output_url = ""
-    clean_url = url.rstrip().lower()
-    if not [ele for ele in to_check if (ele in clean_url)]:
-        if "youtube.com/watch?v=" in clean_url:
-            clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
-        clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
-        for name in name_delete:
-            clean_url = clean_url.replace(name, "")
-        for name in x_name:
-            clean_url = clean_url.replace(name, "x")
-        output_url = clean_url
-
-    return output_url
-
-
 async def auto_snail(message, bot):
     urls = find_url(message.content)
     name_delete = ["www.", "m.", "https://", "http://"]
@@ -220,11 +200,32 @@ def verify_url(content):
     valid = False
     if len(urls) > 0:
         for url in urls:
-            clean_url = check_valid_url(url)
+            to_check = ['framed.wtf', 'timeguessr.com', 'oec.world/en/tradle', ' moviedle.app',
+                        'squirdle.fireblend.com',
+                        'sweardle.com/herdle', '.png', '.gif', '.jpg', '.jpeg', 'discordapp', 'tenor', 'gstatic']
+            name_delete = ["www.", "m.", "https://", "http://"]
+            x_name = ["fxtwitter", "vxtwitter", "twitter"]
+            clean_url = url.rstrip().lower()
+            if not [ele for ele in to_check if (ele in clean_url)]:
+                if "youtube.com/watch?v=" in clean_url:
+                    clean_url = clean_url.replace("youtube.com/watch?v=", "youtu.be/")
+                clean_url = clean_url.split("?")[0].lower().split("#")[0].lower()
+                for name in name_delete:
+                    clean_url = clean_url.replace(name, "")
+                for name in x_name:
+                    clean_url = clean_url.replace(name, "x")
             if clean_url != "":
                 valid = True
                 print(clean_url)
     return valid
+
+
+class MessageData:
+    def __init__(self, author_name, created_at, snails, content):
+        self.author_name = author_name
+        self.created_at = created_at
+        self.snails = snails
+        self.content = content
 
 
 message_archive = {}
@@ -232,49 +233,54 @@ latest_datetime = datetime(2000, 1, 1)
 oldest_datetime = datetime(2000, 1, 1)
 
 
-async def get_history(bot):
+async def get_history(bot, update):
     global message_archive, latest_datetime, oldest_datetime
     counter = 0
     print("## Get history")
     for guild in bot.guilds:
         for channel in guild.text_channels:
             message_store = []
-            async for message in channel.history(after=datetime(2022, 3, 17), limit=None, oldest_first = False):
-                if not message.author.bot and verify_url(message.content):
+            selected_date = datetime(2022, 3, 17)
+            if update:
+                selected_date = latest_datetime
+            async for message in channel.history(after=selected_date, limit=None, oldest_first=False):
+                if (not message.author.bot) and verify_url(message.content):
+                    snails = 0
                     counter += 1
                     if counter % 1000 == 0:
                         print(counter)
                         oldest_datetime = message.created_at
-                    message_store.append(message)
+                    for react in message.reactions:
+                        users = [user async for user in react.users()]
+                        if bot.user in users:
+                            if '\U0001F40C' == react.emoji \
+                                    or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
+                                snails = 1
+                                print("## Snail Found " + message.author.name)
+                            if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
+                                snails = 2
+                                print("## Double Snail Found " + message.author.name)
+                    message_item = MessageData(message.author.name, message.created_at, snails, message.content)
+                    message_store.append(message_item)
             print(channel.id)
-            message_archive[channel.id] = message_store
+            if update:
+                message_archive[channel.id] = message_store + message_archive[channel.id]
+            else:
+                message_archive[channel.id] = message_store
     latest_datetime = datetime.now()
 
 
-async def update_history(bot):
-    print("## Update history")
-    global message_archive, latest_datetime
-    counter = 0
-    for guild in bot.guilds:
-        for channel in guild.text_channels:
-            counter += 1
-            if counter % 1000 == 0:
-                print(counter)
-            entries_update = [message async for message in channel.history(after=latest_datetime, limit=None, oldest_first = False) if
-                              not message.author.bot and verify_url(message.content)]
-            latest_datetime = datetime.now()
-            message_archive[channel.id] = entries_update + message_archive[channel.id]
-
-
-async def snail_search(ctx, bot, date_type):
+async def write_leaderboard(ctx, date_type):
     entries = {}
     date_value = get_date(date_type)
+    print("Date Value: " + str(date_value))
+    print("Oldest date: " + str(oldest_datetime))
     if date_value < oldest_datetime:
         print("## Waiting for messages")
         embed = discord.Embed(title="Snail Score List Updating", description="Please try again later", color=0xF6B600)
         return embed
     print("## Retrieving new messages")
-    await update_history(ctx.channel)
+    await get_history(ctx.channel, True)
     print("## Messages retrieved")
     counter = 0
     for message_store in message_archive:
@@ -283,26 +289,15 @@ async def snail_search(ctx, bot, date_type):
                 print("Last value")
                 print(counter)
                 break
-            if not message.author.bot and verify_url(message.content):
-                counter += 1
-                if counter % 1000 == 0:
-                    print(counter)
-                for react in message.reactions:
-                    users = [user async for user in react.users()]
-                    if bot.user in users:
-                        if '\U0001F40C' == react.emoji \
-                                or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
-                            print("## Snail Found " + message.author.name)
-                            if message.author.name not in entries:
-                                entries[message.author.name] = 1
-                            else:
-                                entries[message.author.name] += 1
-                        if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
-                            print("## Snail Found (x2) " + message.author.name)
-                            if message.author.name not in entries:
-                                entries[message.author.name] = 2
-                            else:
-                                entries[message.author.name] += 2
+            counter += 1
+            if counter % 1000 == 0:
+                print(counter)
+            if message.snails > 0:
+                if message.author_name not in entries:
+                    entries[message.author_name] = message.snails
+                else:
+                    entries[message.author_name] += message.snails
+
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())
