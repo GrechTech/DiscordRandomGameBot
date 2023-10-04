@@ -189,6 +189,7 @@ def get_date(date_type):
     this_month = today.replace(day=1)
     this_year = this_month.replace(month=1)
     yesterday = today - timedelta(days=1)
+    last_week = today - timedelta(days=7)
     if date_type == 'l':  # First day of leaderboards
         return datetime(2023, 8, 15, tzinfo=timezone.utc)
     elif date_type == "birthday":
@@ -197,6 +198,8 @@ def get_date(date_type):
         return today
     elif date_type == "yesterday":
         return yesterday
+    elif date_type == "week" or date_type == "w":
+        return last_week
     elif date_type == "month" or date_type == "m":
         return this_month
     elif date_type == "year" or date_type == "y":
@@ -243,7 +246,7 @@ oldest_datetime = datetime(2000, 1, 1, tzinfo=timezone.utc)
 
 async def store_messages(channel_id, messages):
     print("Write start")
-    with open(os.path.join(activity_path, str(channel_id)), "w+") as outfile:
+    with open(os.path.join(activity_path, str(channel_id)), "wb+") as outfile:
         pickle.dump(messages, outfile)
         print("Write successful")
 
@@ -252,9 +255,11 @@ async def read_messages(channel_id):
     print("Read Start")
     with open(os.path.join(activity_path, str(channel_id)), 'rb') as infile:
         # Reading from json file
+        print("Read Open")
         message_json = pickle.load(infile)
         print("Type1: " + str(type(message_json)))
         print("Read successful")
+    print("Read done")
     return message_json
 
 
@@ -311,7 +316,7 @@ async def write_leaderboard(ctx, date_type):
         await get_history(ctx.channel, True)
     print("## Messages ready")
     counter = 0
-    message_store = read_messages(ctx.channel.id)
+    message_store = await read_messages(ctx.channel.id)
     print("## Store ID: " + str(ctx.channel.id))
     print("## Store size: " + str(len(message_store)))
     for message in message_store:
