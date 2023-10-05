@@ -357,11 +357,12 @@ async def write_leaderboard(ctx, date_type):
     entries_values = list(entries.values())
     entries_sorted_value_index = argsort(entries_values)
     entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
-
+    print("## Snails sorted")
     # Output
     embed_message = ""
     for key, value in entries_sorted.items():
-        embed_message += str(key).split('#')[0] + ": " + str(value) + " (" + entries_activity[key] + ") \n"
+        # embed_message += str(key).split('#')[0] + ": " + str(value) + " (" + entries_activity[key] + ") \n"
+        embed_message += str(key).split('#')[0] + ": " + str(value) + " \n"
     embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
     print(embed)
     return embed
