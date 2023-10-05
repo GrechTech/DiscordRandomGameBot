@@ -57,12 +57,12 @@ async def health(ctx):
 
 
 @bot.command()
-async def leaderboards(ctx):
+async def oldleaderboards(ctx):
     await ctx.channel.send(embed=await autosnail.leaderboard(bot))
 
 
 @bot.command()
-async def newleaderboards(ctx, date_type='l'):
+async def leaderboards(ctx, date_type='l'):
     await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, date_type))
 
 

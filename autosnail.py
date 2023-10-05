@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
+from urlextract import URLExtract
 import os
 import pickle
 import re
@@ -27,12 +28,9 @@ if not os.path.exists(activity_path):
 
 # Auto Snail find URL
 def find_url(string):
-    # findall() has been used 
-    # with valid conditions for urls in string
-    regex = (r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s("
-             r")<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))")
-    url = re.findall(regex, string)
-    return [x[0] for x in url]
+    extractor = URLExtract()
+    urls = extractor.find_urls(string)
+    return urls
 
 
 # Auto Snail find URL in list
@@ -245,12 +243,15 @@ async def store_messages(channel_id, messages):
 
 async def read_messages(channel_id):
     print("Read Start")
-    with open(os.path.join(activity_path, str(channel_id)), 'rb') as infile:
-        # Reading from json file
-        print("Read Open")
-        message_json = pickle.load(infile)
-        print("Type1: " + str(type(message_json)))
-        print("Read successful")
+    file_name = os.path.join(activity_path, str(channel_id))
+    message_json = []
+    if os.path.isfile(file_name):
+        with open(file_name, 'rb') as infile:
+            # Reading from json file
+            print("Read Open")
+            message_json = pickle.load(infile)
+            print("Type1: " + str(type(message_json)))
+            print("Read successful")
     print("Read done")
     return message_json
 
@@ -261,13 +262,15 @@ async def get_history(bot, update):
     print("## Get history")
     for guild in bot.guilds:
         for channel in guild.text_channels:
-            message_store = await read_messages(channel.id)
+            message_store = []
             selected_date = datetime(2022, 3, 17)
             before_date = datetime.now()
+            if os.path.isfile(os.path.join(activity_path, str(channel.id))):
+                message_store = await read_messages(channel.id)
+                if len(message_store) > 0:
+                    before_date = message_store[-1].created_at
             if update:
                 selected_date = latest_datetime
-            else:
-                before_date = message_store[-1].created_at
             async for message in channel.history(after=selected_date, before=before_date, limit=None,
                                                  oldest_first=False):
                 if (not message.author.bot) and verify_url(message.content):
