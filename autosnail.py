@@ -268,9 +268,9 @@ async def get_history(bot, update):
                 message_store = await read_messages(channel.id)
                 if len(message_store) > 0:
                     if update:
-                        start_date = message_store.first().created_at
+                        start_date = message_store[0].created_at
                     else:
-                        end_date = message_store.last().created_at
+                        end_date = message_store[-1].created_at
             async for message in channel.history(after=start_date, before=end_date, limit=None,
                                                  oldest_first=False):
                 if (not message.author.bot) and verify_url(message.content):
@@ -295,8 +295,8 @@ async def get_history(bot, update):
                         print(str(channel.id) + " " + str(counter))
                         await store_messages(channel.id, message_store)
             print("## Completed Get history " + str(channel.id) + " size: " + str(counter))
-            print("## Newest datetime " + str(message_store.first().created_at))
-            print("## Oldest datetime " + str(message_store.last().created_at))
+            print("## Newest datetime " + str(message_store[0].created_at))
+            print("## Oldest datetime " + str(message_store[-1].created_at))
             await store_messages(channel.id, message_store)
     initialised = True
     print("## History initialised")
@@ -313,7 +313,7 @@ async def write_leaderboard(ctx, date_type):
     print("## Checking messages")
     message_store = await read_messages(ctx.channel.id)
     print("## Messages ready")
-    oldest_message_date = message_store.last().created_at
+    oldest_message_date = message_store[-1].created_at
     print("Oldest date: " + str(oldest_message_date))
     still_updating = search_date < oldest_message_date
     print("Waiting: " + str(still_updating))
