@@ -41,7 +41,6 @@ async def on_ready():
             break
     else:
         print("## All attempts used - Reset to finish updating")
-        
 
 
 # Discord functionality

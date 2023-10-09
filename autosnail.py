@@ -172,7 +172,7 @@ def get_date(date_type):
     last_week = today - timedelta(days=7)
     if date_type == 'l':  # First day of leaderboards
         return datetime(2023, 8, 15, tzinfo=timezone.utc)
-    elif date_type == "birthday" or date_type == "b" or "all":
+    elif date_type == "birthday" or date_type == "b" or date_type == "all":
         return datetime(2022, 3, 17, tzinfo=timezone.utc)
     elif date_type == "today" or date_type == "day" or date_type == "d":
         return today
