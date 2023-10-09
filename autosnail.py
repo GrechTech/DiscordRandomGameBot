@@ -327,6 +327,8 @@ async def write_leaderboard(ctx, date_type):
     print("## Store size: " + str(len(message_store)))
     snailer_data = []
     for message in message_store:
+        if message.created_at < search_date:
+            break
         if message.snails == 0:
             negatives = snailer_data.count(check_valid_url(message.content))
             if negatives > 0:
