@@ -257,21 +257,26 @@ async def read_messages(channel_id):
 
 async def get_history(bot, update):
     global initialised
-    print("## Get history")
+    print("## Get history, Update: " + str(update))
     for guild in bot.guilds:
         for channel in guild.text_channels:
             counter = 0
             message_store = []
-            start_date = datetime(2022, 3, 17)
-            end_date = datetime.now()
+            after_date = datetime(2022, 3, 17)
+            before_date = datetime.now()
             if os.path.isfile(os.path.join(activity_path, str(channel.id))):
                 message_store = await read_messages(channel.id)
-                if len(message_store) > 0:
+                message_store_size = len(message_store)
+                print("## Existing messages stored: " + str(message_store_size))
+                print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
+                if len(message_store_size) > 0:
                     if update:
-                        start_date = message_store[0].created_at
+                        after_date = message_store[0].created_at
                     else:
-                        end_date = message_store[-1].created_at
-            async for message in channel.history(after=start_date, before=end_date, limit=None,
+                        before_date = message_store[-1].created_at
+            print("## Start datetime " + str(after_date))
+            print("## End datetime " + str(before_date))
+            async for message in channel.history(after=after_date, before=before_date, limit=None,
                                                  oldest_first=False):
                 if (not message.author.bot) and verify_url(message.content):
                     snails = 0
@@ -306,11 +311,11 @@ async def write_leaderboard(ctx, date_type):
     entries = {}
     entries_activity = {}
     search_date = get_date(date_type)
-    print("Date Value: " + str(search_date))
     if initialised:
         print("## Updating new messages")
         await get_history(ctx.channel, True)
     print("## Checking messages")
+    print("## Search date: " + str(search_date))
     message_store = await read_messages(ctx.channel.id)
     print("## Messages ready")
     oldest_message_date = message_store[-1].created_at
@@ -322,11 +327,6 @@ async def write_leaderboard(ctx, date_type):
     print("## Store size: " + str(len(message_store)))
     snailer_data = []
     for message in message_store:
-        if message.created_at == oldest_message_date:
-            print("## Last value")
-            print(counter)
-            break
-        counter += 1
         if message.snails == 0:
             negatives = snailer_data.count(check_valid_url(message.content))
             if negatives > 0:
@@ -337,7 +337,6 @@ async def write_leaderboard(ctx, date_type):
                 # remove the item for all its occurrences 
                 for i in range(negatives):
                     snailer_data.remove(check_valid_url(message.content))
-
         else:
             if message.author_name not in entries:
                 entries[message.author_name] = message.snails
@@ -350,8 +349,9 @@ async def write_leaderboard(ctx, date_type):
                 entries_activity[message.author_name] += message.snails
 
             snailer_data.append(check_valid_url(message.content))
+        counter += 1
 
-    print("## Snails counted" + str(counter))
+    print("## Messages counted: " + str(counter))
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())
