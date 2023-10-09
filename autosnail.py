@@ -3,8 +3,7 @@ from datetime import timezone
 from datetime import timedelta
 from urlextract import URLExtract
 import os
-import pickle
-import re
+import _pickle as pickle
 import time
 import discord
 
@@ -13,6 +12,8 @@ urls_path = os.path.join(dir_path, "Config", "urls.txt")
 urls_snailed_path = os.path.join(dir_path, "Config", "urls_snailed.txt")
 urls_scores_path = os.path.join(dir_path, "Config", "Scores")
 activity_path = os.path.join(dir_path, "Config", "Activity")
+
+initialised = False  # Whether the leaderboards have fully updated
 
 if not os.path.exists(urls_path):
     with open(urls_path, "w+") as f:
@@ -44,11 +45,11 @@ async def autosnail_find(path, clean_url, author_id):
             clean_line = line.rstrip()
             id_val = int(clean_line.split('>')[0])
             date = int(clean_line.split('>')[1])
-            lineurl = clean_line.split('>')[2]
+            line_url = clean_line.split('>')[2]
             # Check if message within last 3 days
             if (int(time.time()) - date) < (86400 * 3):
                 newlines.append(clean_line)  # Create new list with in date messages
-                if lineurl == clean_url and author_id != id_val:  # If message a Snail
+                if line_url == clean_url and author_id != id_val:  # If message a Snail
                     snail = True
                     await snail_scores(id_val, -1)
 
@@ -58,10 +59,6 @@ async def autosnail_find(path, clean_url, author_id):
             file.write("%s\n" % item)
 
     return snail
-
-
-def argsort(seq):
-    return sorted(range(len(seq)), key=seq.__getitem__)
 
 
 async def leaderboard(bot):
@@ -80,7 +77,7 @@ async def leaderboard(bot):
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())
-    entries_sorted_value_index = argsort(entries_values)
+    entries_sorted_value_index = sorted(range(len(entries_values)), key=entries_values.__getitem__)
     entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
 
     # Output
@@ -132,7 +129,7 @@ async def auto_snail(message, bot):
 
                     # Normal snail
                     emoji = '\U0001F40C'  # Snail
-                    if message.author.id == 178130280400420864:  # Jaysnail
+                    if message.author.id == 178130280400420864:  # Jay snail
                         emoji = discord.utils.get(bot.emojis, name="snailuri")  # '<:snailuri:968161545035071498>'
                     if double_snail:
                         emoji = discord.utils.get(bot.emojis, name="sparklesnail")  # '<:sparklesnail:>'
@@ -230,10 +227,6 @@ class MessageData:
         self.content = content
 
 
-latest_datetime = datetime(2000, 1, 1, tzinfo=timezone.utc)
-oldest_datetime = datetime(2000, 1, 1, tzinfo=timezone.utc)
-
-
 async def store_messages(channel_id, messages):
     print("Write start")
     with open(os.path.join(activity_path, str(channel_id)), "wb+") as outfile:
@@ -242,36 +235,43 @@ async def store_messages(channel_id, messages):
 
 
 async def read_messages(channel_id):
-    print("Read Start")
-    file_name = os.path.join(activity_path, str(channel_id))
-    message_json = []
-    if os.path.isfile(file_name):
-        with open(file_name, 'rb') as infile:
-            # Reading from json file
-            print("Read Open")
-            message_json = pickle.load(infile)
-            print("Type1: " + str(type(message_json)))
-            print("Read successful")
-    print("Read done")
-    return message_json
+    try:
+        print("Read Start " + str(channel_id))
+        file_name = os.path.join(activity_path, str(channel_id))
+        message_json = []
+        if os.path.isfile(file_name):
+            with open(file_name, 'rb') as infile:
+                # Reading from json file
+                print("Read Open " + str(file_name))
+                message_json = pickle.load(infile)
+                print("Type1: " + str(type(message_json)))
+                print("Read successful")
+        print("Read done")
+        return message_json
+    except EOFError as e:
+        print(e)
+        print(str(type(message_json)))
+        print(str(message_json))
+        return []
 
 
 async def get_history(bot, update):
-    global latest_datetime, oldest_datetime
-    counter = 0
+    global initialised
     print("## Get history")
     for guild in bot.guilds:
         for channel in guild.text_channels:
+            counter = 0
             message_store = []
-            selected_date = datetime(2022, 3, 17)
-            before_date = datetime.now()
+            start_date = datetime(2022, 3, 17)
+            end_date = datetime.now()
             if os.path.isfile(os.path.join(activity_path, str(channel.id))):
                 message_store = await read_messages(channel.id)
                 if len(message_store) > 0:
-                    before_date = message_store[-1].created_at
-            if update:
-                selected_date = latest_datetime
-            async for message in channel.history(after=selected_date, before=before_date, limit=None,
+                    if update:
+                        start_date = message_store.first().created_at
+                    else:
+                        end_date = message_store.last().created_at
+            async for message in channel.history(after=start_date, before=end_date, limit=None,
                                                  oldest_first=False):
                 if (not message.author.bot) and verify_url(message.content):
                     snails = 0
@@ -292,44 +292,41 @@ async def get_history(bot, update):
                         message_store.append(message_item)
                     counter += 1
                     if counter % 100 == 0:
-                        print(counter)
-                        oldest_datetime = message.created_at
+                        print(str(channel.id) + " " + str(counter))
                         await store_messages(channel.id, message_store)
-            print(channel.id)
+            print("## Completed Get history " + str(channel.id) + " size: " + str(counter))
+            print("## Newest datetime " + str(message_store.first().created_at))
+            print("## Oldest datetime " + str(message_store.last().created_at))
             await store_messages(channel.id, message_store)
-    latest_datetime = datetime.now()
+    initialised = True
+    print("## History initialised")
 
 
 async def write_leaderboard(ctx, date_type):
     entries = {}
     entries_activity = {}
-    date_value = get_date(date_type)
-    waiting = date_value < oldest_datetime
-    print("Date Value: " + str(date_value))
-    print("Oldest date: " + str(oldest_datetime))
-    print("Waiting: " + str(waiting))
-    if waiting:
-        print("## Waiting for more messages")
-        embed = discord.Embed(title="Snail Score List Updating", description="Please try again later", color=0xF6B600)
-        return embed
-    print("## Checking messages")
-    if latest_datetime != datetime(2000, 1, 1, tzinfo=timezone.utc):
+    search_date = get_date(date_type)
+    print("Date Value: " + str(search_date))
+    if initialised:
         print("## Updating new messages")
         await get_history(ctx.channel, True)
-    print("## Messages ready")
-    counter = 0
+    print("## Checking messages")
     message_store = await read_messages(ctx.channel.id)
+    print("## Messages ready")
+    oldest_message_date = message_store.last().created_at
+    print("Oldest date: " + str(oldest_message_date))
+    still_updating = search_date < oldest_message_date
+    print("Waiting: " + str(still_updating))
+    counter = 0
     print("## Store ID: " + str(ctx.channel.id))
     print("## Store size: " + str(len(message_store)))
     snailor_data = []
     for message in message_store:
-        if message.created_at < date_value:
+        if message.created_at == oldest_message_date:
             print("## Last value")
             print(counter)
             break
         counter += 1
-        if counter % 10 == 0:
-            print(counter)
         if message.snails == 0:
             negatives = snailor_data.count(check_valid_url(message.content))
             if negatives > 0:
@@ -354,11 +351,11 @@ async def write_leaderboard(ctx, date_type):
 
             snailor_data.append(check_valid_url(message.content))
 
-    print("## Snails counted")
+    print("## Snails counted" + str(counter))
     # Sort dictionary
     entries_keys = list(entries.keys())
     entries_values = list(entries.values())
-    entries_sorted_value_index = argsort(entries_values)
+    entries_sorted_value_index = sorted(range(len(entries_values)), key=entries_values.__getitem__)
     entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
     print("## Snails sorted")
     # Output
@@ -366,6 +363,9 @@ async def write_leaderboard(ctx, date_type):
     for key, value in entries_sorted.items():
         # embed_message += str(key).split('#')[0] + ": " + str(value) + " (" + entries_activity[key] + ") \n"
         embed_message += str(key).split('#')[0] + ": " + str(value) + " \n"
-    embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
+    if still_updating:
+        embed = discord.Embed(title="Snail Score List (Partial: Updating)", description=embed_message, color=0xF6B600)
+    else:
+        embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
     print(embed)
     return embed
