@@ -1,10 +1,9 @@
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
-from multiprocessing import Pool
 from urlextract import URLExtract
-import _pickle as pickle
 import os
+import _pickle as pickle
 import time
 import discord
 
@@ -15,7 +14,6 @@ urls_scores_path = os.path.join(dir_path, "Config", "Scores")
 activity_path = os.path.join(dir_path, "Config", "Activity")
 
 initialised = False  # Whether the leaderboards have fully updated
-bot = None
 
 if not os.path.exists(urls_path):
     with open(urls_path, "w+") as f:
@@ -27,11 +25,6 @@ if not os.path.exists(urls_scores_path):
     os.mkdir(urls_scores_path)
 if not os.path.exists(activity_path):
     os.mkdir(activity_path)
-
-
-def init(bot_input):
-    global bot
-    bot = bot_input
 
 
 # Auto Snail find URL
@@ -68,7 +61,7 @@ async def autosnail_find(path, clean_url, author_id):
     return snail
 
 
-async def leaderboard():
+async def leaderboard(bot):
     print("Leaderboards")
     entries = {}
     embed_message = ""
@@ -95,7 +88,7 @@ async def leaderboard():
     return embed
 
 
-async def snail_delete_check(message):
+async def snail_delete_check(message, bot):
     if not message.author.bot:
         for react in message.reactions:
             if '\U0001F40C' == react.emoji \
@@ -120,7 +113,7 @@ async def snail_scores(id_val, score_delta):
         file.write(str(score))
 
 
-async def auto_snail(message):
+async def auto_snail(message, bot):
     urls = find_url(message.content)
     # Check message for url
     if len(urls) > 0:
@@ -156,10 +149,10 @@ async def auto_snail(message):
     return False
 
 
-async def auto_snail_safe(message):
+async def auto_snail_safe(message, bot):
     # AUTOSNAIL
     try:
-        await auto_snail(message)
+        await auto_snail(message, bot)
     except discord.errors.Forbidden:
         print("Autosnail Fail")
         embed = discord.Embed(title=":sparklesnail: Blocked Snail Alert")
@@ -241,7 +234,7 @@ async def store_messages(channel_id, messages):
         print("Write successful")
 
 
-def read_messages(channel_id):
+async def read_messages(channel_id):
     try:
         print("Read Start " + str(channel_id))
         file_name = os.path.join(activity_path, str(channel_id))
@@ -262,64 +255,54 @@ def read_messages(channel_id):
         return []
 
 
-async def get_channel_history(update, channel):
-    counter = 0
-    message_store = []
-    after_date = datetime(2022, 3, 17)
-    before_date = datetime.now()
-    if os.path.isfile(os.path.join(activity_path, str(channel.id))):
-        message_store = read_messages(channel.id)
-        message_store_size = len(message_store)
-        print("## Existing messages stored: " + str(message_store_size))
-        print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
-        if message_store_size > 0:
-            if update:
-                after_date = message_store[0].created_at
-            else:
-                before_date = message_store[-1].created_at
-    print("## After datetime " + str(after_date))
-    print("## Before datetime " + str(before_date))
-    async for message in channel.history(after=after_date, before=before_date, limit=None,
-                                         oldest_first=False):
-        if (not message.author.bot) and verify_url(message.content):
-            snails = 0
-            for react in message.reactions:
-                users = [user async for user in react.users()]
-                if bot.user in users:
-                    if '\U0001F40C' == react.emoji \
-                            or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
-                        snails = 1
-                        print("## Snail Found " + message.author.name)
-                    if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
-                        snails = 2
-                        print("## Double Snail Found " + message.author.name)
-            message_item = MessageData(message.author.name, message.created_at, snails, message.content)
-            if update:
-                message_store.insert(0, message_item)
-            else:
-                message_store.append(message_item)
-            counter += 1
-            if counter % 100 == 0:
-                print(str(channel.id) + " " + str(counter))
-                await store_messages(channel.id, message_store)
-    print("## Completed Get history " + str(channel.id) + " size: " + str(counter))
-    print("## Newest datetime " + str(message_store[0].created_at))
-    print("## Oldest datetime " + str(message_store[-1].created_at))
-    await store_messages(channel.id, message_store)
-    return True
-
-
-async def get_history(update):
+async def get_history(bot, update):
     global initialised
     print("## Get history, Update: " + str(update))
-    channels = []
     for guild in bot.guilds:
         for channel in guild.text_channels:
-            channels.append(channel)
-    print("## Channels: " + str(len(channels)))
-    with Pool(5) as p:
-        results = p.starmap_async(get_channel_history, channels)
-    print(results)
+            counter = 0
+            message_store = []
+            after_date = datetime(2022, 3, 17)
+            before_date = datetime.now()
+            if os.path.isfile(os.path.join(activity_path, str(channel.id))):
+                message_store = await read_messages(channel.id)
+                message_store_size = len(message_store)
+                print("## Existing messages stored: " + str(message_store_size))
+                print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
+                if message_store_size > 0:
+                    if update:
+                        after_date = message_store[0].created_at
+                    else:
+                        before_date = message_store[-1].created_at
+            print("## Start datetime " + str(after_date))
+            print("## End datetime " + str(before_date))
+            async for message in channel.history(after=after_date, before=before_date, limit=None,
+                                                 oldest_first=False):
+                if (not message.author.bot) and verify_url(message.content):
+                    snails = 0
+                    for react in message.reactions:
+                        users = [user async for user in react.users()]
+                        if bot.user in users:
+                            if '\U0001F40C' == react.emoji \
+                                    or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
+                                snails = 1
+                                print("## Snail Found " + message.author.name)
+                            if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
+                                snails = 2
+                                print("## Double Snail Found " + message.author.name)
+                    message_item = MessageData(message.author.name, message.created_at, snails, message.content)
+                    if update:
+                        message_store.insert(0, message_item)
+                    else:
+                        message_store.append(message_item)
+                    counter += 1
+                    if counter % 100 == 0:
+                        print(str(channel.id) + " " + str(counter))
+                        await store_messages(channel.id, message_store)
+            print("## Completed Get history " + str(channel.id) + " size: " + str(counter))
+            print("## Newest datetime " + str(message_store[0].created_at))
+            print("## Oldest datetime " + str(message_store[-1].created_at))
+            await store_messages(channel.id, message_store)
     initialised = True
     print("## History initialised")
 
@@ -330,10 +313,10 @@ async def write_leaderboard(ctx, date_type):
     search_date = get_date(date_type)
     if initialised:
         print("## Updating new messages")
-        await get_history(True)
+        await get_history(ctx.channel, True)
     print("## Checking messages")
     print("## Search date: " + str(search_date))
-    message_store = read_messages(ctx.channel.id)
+    message_store = await read_messages(ctx.channel.id)
     print("## Messages ready")
     oldest_message_date = message_store[-1].created_at
     print("Oldest date: " + str(oldest_message_date))
@@ -381,7 +364,7 @@ async def write_leaderboard(ctx, date_type):
         # embed_message += str(key).split('#')[0] + ": " + str(value) + " (" + entries_activity[key] + ") \n"
         embed_message += str(key).split('#')[0] + ": " + str(value) + " \n"
     if still_updating:
-        embed = discord.Embed(title="Snail Score List (Partial: Updating)", description=embed_message, color=0xF6B600)
+        embed = discord.Embed(title="Snail Score List (Updating)", description=embed_message, color=0xF6B600)
     else:
         embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
     print(embed)
