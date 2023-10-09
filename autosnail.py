@@ -269,7 +269,7 @@ async def get_history(bot, update):
                 message_store_size = len(message_store)
                 print("## Existing messages stored: " + str(message_store_size))
                 print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
-                if len(message_store_size) > 0:
+                if message_store_size > 0:
                     if update:
                         after_date = message_store[0].created_at
                     else:
