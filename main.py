@@ -1,5 +1,6 @@
 import asyncio
 from random import random
+import aiohttp
 import psutil
 import os
 import discord
@@ -30,7 +31,17 @@ with open(token_path, "r") as f:
 @bot.event
 async def on_ready():
     print(f'{bot.user} successfully logged in!')
-    await asyncio.to_thread(await autosnail.get_history(bot, False))
+    for attempt in range(100):
+        try:
+            await asyncio.to_thread(await autosnail.get_history(bot, False))
+        except aiohttp.client_exceptions.ServerDisconnectedError as e:
+            print(e)
+            await asyncio.sleep(360 * attempt)
+        else:
+            break
+    else:
+        print("## All attempts used - Reset to finish updating")
+        
 
 
 # Discord functionality
