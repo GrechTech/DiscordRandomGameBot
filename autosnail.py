@@ -320,7 +320,7 @@ async def write_leaderboard(ctx, date_type):
     counter = 0
     print("## Store ID: " + str(ctx.channel.id))
     print("## Store size: " + str(len(message_store)))
-    snailor_data = []
+    snailer_data = []
     for message in message_store:
         if message.created_at == oldest_message_date:
             print("## Last value")
@@ -328,7 +328,7 @@ async def write_leaderboard(ctx, date_type):
             break
         counter += 1
         if message.snails == 0:
-            negatives = snailor_data.count(check_valid_url(message.content))
+            negatives = snailer_data.count(check_valid_url(message.content))
             if negatives > 0:
                 if message.author_name not in entries:
                     entries[message.author_name] = negatives * -1
@@ -336,7 +336,7 @@ async def write_leaderboard(ctx, date_type):
                     entries[message.author_name] -= negatives
                 # remove the item for all its occurrences 
                 for i in range(negatives):
-                    snailor_data.remove(check_valid_url(message.content))
+                    snailer_data.remove(check_valid_url(message.content))
 
         else:
             if message.author_name not in entries:
@@ -349,7 +349,7 @@ async def write_leaderboard(ctx, date_type):
             else:
                 entries_activity[message.author_name] += message.snails
 
-            snailor_data.append(check_valid_url(message.content))
+            snailer_data.append(check_valid_url(message.content))
 
     print("## Snails counted" + str(counter))
     # Sort dictionary
