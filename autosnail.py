@@ -15,6 +15,7 @@ urls_scores_path = os.path.join(dir_path, "Config", "Scores")
 activity_path = os.path.join(dir_path, "Config", "Activity")
 
 initialised = False  # Whether the leaderboards have fully updated
+bot = None
 
 if not os.path.exists(urls_path):
     with open(urls_path, "w+") as f:
@@ -26,6 +27,11 @@ if not os.path.exists(urls_scores_path):
     os.mkdir(urls_scores_path)
 if not os.path.exists(activity_path):
     os.mkdir(activity_path)
+
+
+def init(bot_input):
+    global bot
+    bot = bot_input
 
 
 # Auto Snail find URL
@@ -62,7 +68,7 @@ async def autosnail_find(path, clean_url, author_id):
     return snail
 
 
-async def leaderboard(bot):
+async def leaderboard():
     print("Leaderboards")
     entries = {}
     embed_message = ""
@@ -89,7 +95,7 @@ async def leaderboard(bot):
     return embed
 
 
-async def snail_delete_check(message, bot):
+async def snail_delete_check(message):
     if not message.author.bot:
         for react in message.reactions:
             if '\U0001F40C' == react.emoji \
@@ -114,7 +120,7 @@ async def snail_scores(id_val, score_delta):
         file.write(str(score))
 
 
-async def auto_snail(message, bot):
+async def auto_snail(message):
     urls = find_url(message.content)
     # Check message for url
     if len(urls) > 0:
@@ -150,10 +156,10 @@ async def auto_snail(message, bot):
     return False
 
 
-async def auto_snail_safe(message, bot):
+async def auto_snail_safe(message):
     # AUTOSNAIL
     try:
-        await auto_snail(message, bot)
+        await auto_snail(message)
     except discord.errors.Forbidden:
         print("Autosnail Fail")
         embed = discord.Embed(title=":sparklesnail: Blocked Snail Alert")
@@ -235,7 +241,7 @@ async def store_messages(channel_id, messages):
         print("Write successful")
 
 
-async def read_messages(channel_id):
+def read_messages(channel_id):
     try:
         print("Read Start " + str(channel_id))
         file_name = os.path.join(activity_path, str(channel_id))
@@ -256,13 +262,13 @@ async def read_messages(channel_id):
         return []
 
 
-async def get_channel_history(bot, update, channel):
+async def get_channel_history(update, channel):
     counter = 0
     message_store = []
     after_date = datetime(2022, 3, 17)
     before_date = datetime.now()
     if os.path.isfile(os.path.join(activity_path, str(channel.id))):
-        message_store = await read_messages(channel.id)
+        message_store = read_messages(channel.id)
         message_store_size = len(message_store)
         print("## Existing messages stored: " + str(message_store_size))
         print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
@@ -300,9 +306,10 @@ async def get_channel_history(bot, update, channel):
     print("## Newest datetime " + str(message_store[0].created_at))
     print("## Oldest datetime " + str(message_store[-1].created_at))
     await store_messages(channel.id, message_store)
+    return True
 
 
-async def get_history(bot, update):
+async def get_history(update):
     global initialised
     print("## Get history, Update: " + str(update))
     channels = []
@@ -311,7 +318,8 @@ async def get_history(bot, update):
             channels.append(channel)
     print("## Channels: " + str(len(channels)))
     with Pool(5) as p:
-        p.map(get_channel_history, bot, update, channels)
+        results = p.starmap_async(get_channel_history, channels)
+    print(results)
     initialised = True
     print("## History initialised")
 
@@ -322,10 +330,10 @@ async def write_leaderboard(ctx, date_type):
     search_date = get_date(date_type)
     if initialised:
         print("## Updating new messages")
-        await get_history(ctx.channel, True)
+        await get_history(True)
     print("## Checking messages")
     print("## Search date: " + str(search_date))
-    message_store = await read_messages(ctx.channel.id)
+    message_store = read_messages(ctx.channel.id)
     print("## Messages ready")
     oldest_message_date = message_store[-1].created_at
     print("Oldest date: " + str(oldest_message_date))

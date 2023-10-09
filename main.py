@@ -19,6 +19,7 @@ intents.guilds = True
 intents.messages = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+autosnail.init(bot)
 
 if not os.path.exists(token_path):
     with open(token_path, "w+") as f:
