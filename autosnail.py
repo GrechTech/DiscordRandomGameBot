@@ -1,9 +1,10 @@
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
+from multiprocessing import Pool
 from urlextract import URLExtract
-import os
 import _pickle as pickle
+import os
 import time
 import discord
 
@@ -255,54 +256,62 @@ async def read_messages(channel_id):
         return []
 
 
+async def get_channel_history(bot, update, channel):
+    counter = 0
+    message_store = []
+    after_date = datetime(2022, 3, 17)
+    before_date = datetime.now()
+    if os.path.isfile(os.path.join(activity_path, str(channel.id))):
+        message_store = await read_messages(channel.id)
+        message_store_size = len(message_store)
+        print("## Existing messages stored: " + str(message_store_size))
+        print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
+        if message_store_size > 0:
+            if update:
+                after_date = message_store[0].created_at
+            else:
+                before_date = message_store[-1].created_at
+    print("## After datetime " + str(after_date))
+    print("## Before datetime " + str(before_date))
+    async for message in channel.history(after=after_date, before=before_date, limit=None,
+                                         oldest_first=False):
+        if (not message.author.bot) and verify_url(message.content):
+            snails = 0
+            for react in message.reactions:
+                users = [user async for user in react.users()]
+                if bot.user in users:
+                    if '\U0001F40C' == react.emoji \
+                            or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
+                        snails = 1
+                        print("## Snail Found " + message.author.name)
+                    if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
+                        snails = 2
+                        print("## Double Snail Found " + message.author.name)
+            message_item = MessageData(message.author.name, message.created_at, snails, message.content)
+            if update:
+                message_store.insert(0, message_item)
+            else:
+                message_store.append(message_item)
+            counter += 1
+            if counter % 100 == 0:
+                print(str(channel.id) + " " + str(counter))
+                await store_messages(channel.id, message_store)
+    print("## Completed Get history " + str(channel.id) + " size: " + str(counter))
+    print("## Newest datetime " + str(message_store[0].created_at))
+    print("## Oldest datetime " + str(message_store[-1].created_at))
+    await store_messages(channel.id, message_store)
+
+
 async def get_history(bot, update):
     global initialised
     print("## Get history, Update: " + str(update))
+    channels = []
     for guild in bot.guilds:
         for channel in guild.text_channels:
-            counter = 0
-            message_store = []
-            after_date = datetime(2022, 3, 17)
-            before_date = datetime.now()
-            if os.path.isfile(os.path.join(activity_path, str(channel.id))):
-                message_store = await read_messages(channel.id)
-                message_store_size = len(message_store)
-                print("## Existing messages stored: " + str(message_store_size))
-                print("From: " + str(message_store[0].created_at) + " to " + str(message_store[-1].created_at))
-                if message_store_size > 0:
-                    if update:
-                        after_date = message_store[0].created_at
-                    else:
-                        before_date = message_store[-1].created_at
-            print("## Start datetime " + str(after_date))
-            print("## End datetime " + str(before_date))
-            async for message in channel.history(after=after_date, before=before_date, limit=None,
-                                                 oldest_first=False):
-                if (not message.author.bot) and verify_url(message.content):
-                    snails = 0
-                    for react in message.reactions:
-                        users = [user async for user in react.users()]
-                        if bot.user in users:
-                            if '\U0001F40C' == react.emoji \
-                                    or discord.utils.get(bot.emojis, name="snailuri") == react.emoji:
-                                snails = 1
-                                print("## Snail Found " + message.author.name)
-                            if discord.utils.get(bot.emojis, name="sparklesnail") == react.emoji:
-                                snails = 2
-                                print("## Double Snail Found " + message.author.name)
-                    message_item = MessageData(message.author.name, message.created_at, snails, message.content)
-                    if update:
-                        message_store.insert(0, message_item)
-                    else:
-                        message_store.append(message_item)
-                    counter += 1
-                    if counter % 100 == 0:
-                        print(str(channel.id) + " " + str(counter))
-                        await store_messages(channel.id, message_store)
-            print("## Completed Get history " + str(channel.id) + " size: " + str(counter))
-            print("## Newest datetime " + str(message_store[0].created_at))
-            print("## Oldest datetime " + str(message_store[-1].created_at))
-            await store_messages(channel.id, message_store)
+            channels.append(channel)
+    print("## Channels: " + str(len(channels)))
+    with Pool(5) as p:
+        p.map(get_channel_history, bot, update, channels)
     initialised = True
     print("## History initialised")
 
