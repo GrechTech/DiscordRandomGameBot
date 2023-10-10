@@ -311,49 +311,45 @@ async def write_leaderboard(ctx, date_type):
     entries = {}
     entries_activity = {}
     search_date = get_date(date_type)
+    if initialised:
+        print("## Updating new messages")
+        await get_history(ctx.channel, True)
+    print("## Checking messages")
+    print("## Search date: " + str(search_date))
+    message_store = await read_messages(ctx.channel.id)
+    print("## Messages ready")
+    oldest_message_date = message_store[-1].created_at
+    print("Oldest date: " + str(oldest_message_date))
+    still_updating = search_date < oldest_message_date
+    print("Waiting: " + str(still_updating))
     counter = 0
+    print("## Store ID: " + str(ctx.channel.id))
+    print("## Store size: " + str(len(message_store)))
     snailer_data = []
-    for channel in ctx.guild.text_channels:
-        if initialised:
-            print("## Updating new messages")
-            await get_history(channel, True)
-        print("## Checking messages")
-        print("## Search date: " + str(search_date))
-        message_store = await read_messages(channel.id)
-        print("## Messages ready")
-        oldest_message_date = message_store[-1].created_at
-        print("Oldest date: " + str(oldest_message_date))
-        still_updating = search_date < oldest_message_date
-        print("Waiting: " + str(still_updating))
-        
-        print("## Store ID: " + str(channel.id))
-        print("## Store size: " + str(len(message_store)))
-        for message in message_store:
-            if message.created_at < search_date:
-                break
-            if message.snails == 0:
-                negatives = snailer_data.count(check_valid_url(message.content))
-                if negatives > 0:
-                    if message.author_name not in entries:
-                        entries[message.author_name] = negatives * -1
-                    else:
-                        entries[message.author_name] -= negatives
-                    # remove the item for all its occurrences 
-                    for i in range(negatives):
-                        snailer_data.remove(check_valid_url(message.content))
-            else:
+    for message in message_store:
+        if message.snails == 0:
+            negatives = snailer_data.count(check_valid_url(message.content))
+            if negatives > 0:
                 if message.author_name not in entries:
-                    entries[message.author_name] = message.snails
+                    entries[message.author_name] = negatives * -1
                 else:
-                    entries[message.author_name] += message.snails
+                    entries[message.author_name] -= negatives
+                # remove the item for all its occurrences 
+                for i in range(negatives):
+                    snailer_data.remove(check_valid_url(message.content))
+        else:
+            if message.author_name not in entries:
+                entries[message.author_name] = message.snails
+            else:
+                entries[message.author_name] += message.snails
 
-                if message.author_name not in entries_activity:
-                    entries_activity[message.author_name] = message.snails
-                else:
-                    entries_activity[message.author_name] += message.snails
+            if message.author_name not in entries_activity:
+                entries_activity[message.author_name] = message.snails
+            else:
+                entries_activity[message.author_name] += message.snails
 
-                snailer_data.append(check_valid_url(message.content))
-            counter += 1
+            snailer_data.append(check_valid_url(message.content))
+        counter += 1
 
     print("## Messages counted: " + str(counter))
     # Sort dictionary
