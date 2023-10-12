@@ -357,7 +357,7 @@ async def write_leaderboard(ctx, use_negative, date_type):
     # Output
     embed_message = ""
     for key, value in entries_sorted.items():
-        embed_message += str(key).split('#')[0] + ": " + " \n"
+        embed_message += str(key).split('#')[0] + ": " + str(value) + " \n"
     if still_updating:
         embed = discord.Embed(title="Snail Score List (Updating)", description=embed_message, color=0xF6B600)
     else:
