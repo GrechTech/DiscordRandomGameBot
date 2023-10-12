@@ -307,9 +307,8 @@ async def get_history(bot, update):
     print("## History initialised")
 
 
-async def write_leaderboard(ctx, date_type):
+async def write_leaderboard(ctx, use_negative, date_type):
     entries = {}
-    entries_activity = {}
     search_date = get_date(date_type)
     if initialised:
         print("## Updating new messages")
@@ -329,7 +328,7 @@ async def write_leaderboard(ctx, date_type):
     for message in message_store:
         if message.created_at < search_date:
             break
-        if message.snails == 0:
+        if message.snails == 0 and use_negative:
             negatives = snailer_data.count(check_valid_url(message.content))
             if negatives > 0:
                 if message.author_name not in entries:
@@ -345,11 +344,6 @@ async def write_leaderboard(ctx, date_type):
             else:
                 entries[message.author_name] += message.snails
 
-            if message.author_name not in entries_activity:
-                entries_activity[message.author_name] = message.snails
-            else:
-                entries_activity[message.author_name] += message.snails
-
             snailer_data.append(check_valid_url(message.content))
         counter += 1
 
@@ -363,7 +357,7 @@ async def write_leaderboard(ctx, date_type):
     # Output
     embed_message = ""
     for key, value in entries_sorted.items():
-        embed_message += str(key).split('#')[0] + ": " + str(value) + " (" + str(entries_activity[key]) + ") \n"
+        embed_message += str(key).split('#')[0] + ": " + " \n"
     if still_updating:
         embed = discord.Embed(title="Snail Score List (Updating)", description=embed_message, color=0xF6B600)
     else:

@@ -32,6 +32,7 @@ with open(token_path, "r") as f:
 async def on_ready():
     print(f'{bot.user} successfully logged in!')
     for attempt in range(100):
+        print('Attempt: ' + str(attempt))
         try:
             await asyncio.to_thread(await autosnail.get_history(bot, False))
         except aiohttp.client_exceptions.ServerDisconnectedError as e:
@@ -73,7 +74,12 @@ async def oldleaderboards(ctx):
 
 @bot.command()
 async def leaderboards(ctx, date_type='l'):
-    await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, date_type))
+    await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, True, date_type))
+
+
+@bot.command()
+async def newleaderboards(ctx, date_type='l'):
+    await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, True, date_type))
 
 
 @bot.command()
