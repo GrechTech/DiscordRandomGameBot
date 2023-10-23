@@ -10,7 +10,6 @@ import discord
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 urls_path = os.path.join(dir_path, "Config", "urls.txt")
 urls_snailed_path = os.path.join(dir_path, "Config", "urls_snailed.txt")
-urls_scores_path = os.path.join(dir_path, "Config", "Scores")
 activity_path = os.path.join(dir_path, "Config", "Activity")
 
 initialised = False  # Whether the leaderboards have fully updated
@@ -21,8 +20,6 @@ if not os.path.exists(urls_path):
 if not os.path.exists(urls_path):
     with open(urls_snailed_path, "w+") as f:
         f.write('')
-if not os.path.exists(urls_scores_path):
-    os.mkdir(urls_scores_path)
 if not os.path.exists(activity_path):
     os.mkdir(activity_path)
 
@@ -51,7 +48,6 @@ async def autosnail_find(path, clean_url, author_id):
                 newlines.append(clean_line)  # Create new list with in date messages
                 if line_url == clean_url and author_id != id_val:  # If message a Snail
                     snail = True
-                    await snail_scores(id_val, -1)
 
     # Create new file with only in date messages   
     with open(path, "w+") as file:
@@ -59,33 +55,6 @@ async def autosnail_find(path, clean_url, author_id):
             file.write("%s\n" % item)
 
     return snail
-
-
-async def leaderboard(bot):
-    print("Leaderboards")
-    entries = {}
-    embed_message = ""
-
-    # Read values from scoring files and create unsorted dictionary
-    for filename in os.listdir(urls_scores_path):
-        url_f = os.path.join(urls_scores_path, filename)
-        if os.path.isfile(url_f):
-            with open(url_f, "r+") as file:
-                score = int(file.read().rstrip())
-                user = await bot.fetch_user(int(filename))
-                entries[user] = score
-    # Sort dictionary
-    entries_keys = list(entries.keys())
-    entries_values = list(entries.values())
-    entries_sorted_value_index = sorted(range(len(entries_values)), key=entries_values.__getitem__)
-    entries_sorted = {entries_keys[i]: entries_values[i] for i in entries_sorted_value_index}
-
-    # Output
-    for key, value in entries_sorted.items():
-        embed_message += str(key).split('#')[0] + ": " + str(value) + "\n"
-    embed = discord.Embed(title="Snail Score List", description=embed_message, color=0xF6B600)
-    print(embed)
-    return embed
 
 
 async def snail_delete_check(message, bot):
@@ -100,17 +69,6 @@ async def snail_delete_check(message, bot):
                 print("Snail Deleted Hit")
                 await message.channel.send(embed=embed)
                 return
-
-
-async def snail_scores(id_val, score_delta):
-    score_path = os.path.join(urls_scores_path, str(id_val))
-    score = 0
-    if os.path.exists(score_path):
-        with open(score_path, "r+") as file:
-            score = int(file.read().rstrip())
-    score += score_delta
-    with open(score_path, "w+") as file:
-        file.write(str(score))
 
 
 async def auto_snail(message, bot):
@@ -133,9 +91,7 @@ async def auto_snail(message, bot):
                         emoji = discord.utils.get(bot.emojis, name="snailuri")  # '<:snailuri:968161545035071498>'
                     if double_snail:
                         emoji = discord.utils.get(bot.emojis, name="sparklesnail")  # '<:sparklesnail:>'
-                        await snail_scores(message.author.id, 2)
                     else:
-                        await snail_scores(message.author.id, 1)
                         with open(urls_snailed_path, "a+") as file:
                             newline = str(message.author.id) + '>' + str(int(time.time())) + '>' + clean_url + '\n'
                             file.write(newline)

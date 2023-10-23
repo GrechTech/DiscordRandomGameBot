@@ -5,11 +5,12 @@ import psutil
 import os
 import discord
 from discord.ext import commands
+
+import f1next
 import wordlist
 import autosnail
 import banword
 import console_bot
-import votegary
 
 TOKEN = ""  # From Config / token.txt
 
@@ -68,18 +69,13 @@ async def health(ctx):
 
 
 @bot.command()
-async def oldleaderboards(ctx):
-    await ctx.channel.send(embed=await autosnail.leaderboard(bot))
-
-
-@bot.command()
 async def leaderboards(ctx, date_type='l'):
     await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, True, date_type))
 
 
 @bot.command()
-async def newleaderboards(ctx, date_type='l'):
-    await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, True, date_type))
+async def snailcount(ctx, date_type='l'):
+    await ctx.channel.send(embed=await autosnail.write_leaderboard(ctx, False, date_type))
 
 
 @bot.command()
@@ -98,9 +94,18 @@ async def calc(ctx, *, input_val: str):
     # await ctx.channel.send(str(result))
 
 
-@bot.command()  # Create a slash command
-async def votegarry(ctx):
-    await ctx.respond("Vote", view=votegary.VoteView())
+@bot.command()
+async def f1(ctx):
+    await ctx.channel.send(
+        str(discord.utils.get(bot.emojis, name="f1")) + str(discord.utils.get(bot.emojis, name="f2")) + str(
+            discord.utils.get(bot.emojis, name="f3")))
+    await ctx.channel.send(f1next.custom_output())
+
+
+@bot.command()
+async def f3(ctx):
+    await ctx.channel.send(
+        str(discord.utils.get(bot.emojis, name="f1")) + str(discord.utils.get(bot.emojis, name="f3")))
 
 
 @bot.command()

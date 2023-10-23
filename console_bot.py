@@ -130,7 +130,7 @@ class Console:
         embed.set_thumbnail(url=result)
         return embed
 
-    def get_message(self):
+    def get_message(self, image=True):
         item_path = os.path.join(os.path.join(dir_path, 'Data/'), self.name)
         index = round(random() * self.size)
 
@@ -169,7 +169,8 @@ class Console:
         embed = discord.Embed(title=message_title_output, url=message_url, description=message_desc, color=0xFF1694)
         result = imagesearch.do_search(message_title_output + " box art")
         print("Search result: ", result)
-        embed.set_thumbnail(url=result)
+        if image:
+            embed.set_thumbnail(url=result)
         return embed
 
 
@@ -236,11 +237,14 @@ def get_consoles():
 
 
 async def check_consoles(message):
+    images = True
+    if message.author.id == 206860027204599811:
+        images = False
     for console in console_list:
         if ((' ' + console.name.replace('.csv', '').lower() + ' ') in message.content.lower()) \
                 or (message.content.lower().startswith(console.name.replace('.csv', '').lower() + " ")) \
                 or (message.content.lower().endswith(" " + console.name.replace('.csv', '').lower())) \
                 or (message.content.lower() == console.name.replace('.csv', '').lower()):
             print(f'{console.name} called')
-            await message.channel.send(embed=console.get_message())
+            await message.channel.send(embed=console.get_message(images))
             return
