@@ -96,8 +96,12 @@ def get_event_datetime(event_date: str, event_time: str) -> datetime:
 
 
 def custom_output():
-
-    next_round = get_json(True)
+    return_string = ""
+    try:
+        next_round = get_json(True)
+    except:
+         return return_string
+        
 
     # Date of the next round refers to the race date
     gp_events = {"Race": get_event_datetime(next_round["date"], next_round["time"])}

@@ -73,11 +73,14 @@ async def snail_delete_check(message, bot):
 
 async def auto_snail(message, bot):
     urls = find_url(message.content)
+    print(len(urls))
+    print(urls)
     # Check message for url
     if len(urls) > 0:
         for url in urls:
             clean_url = check_valid_url(url)
             if clean_url != "":
+                print("Valid URL")
                 if await autosnail_find(urls_path, clean_url, message.author.id):
                     print("Snail Hit")
                     double_snail = False
