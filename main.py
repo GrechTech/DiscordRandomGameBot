@@ -132,21 +132,18 @@ async def on_reaction_add(reaction, user):
 
 @bot.event
 async def on_message(message):
-    if message.author == bot.user:
-        return
-
     if not check_reply(message):
-        # AUTOSNAIL
+    # AUTOSNAIL
         await autosnail.auto_snail_safe(message, bot)
-
-        # CONSOLE
+    # CONSOLE
         await console_bot.check_consoles(message)
-
+        
+    if not message.author == bot.user:
+    # WORDLIST
+        await wordlist.word_list_check(message) 
+        
     # BAN WORD
     await banword.check_for_words(message, bot)
-
-    # WORDLIST
-    await wordlist.word_list_check(message)
 
     # COMMANDS
     await bot.process_commands(message)
