@@ -4,6 +4,7 @@ import aiohttp
 import psutil
 import os
 import discord
+import requests
 from discord.ext import commands
 
 import f1next
@@ -106,6 +107,10 @@ async def f1(ctx):
 async def f3(ctx):
     await ctx.channel.send(
         str(discord.utils.get(bot.emojis, name="f1")) + str(discord.utils.get(bot.emojis, name="f3")))
+    
+@bot.command()
+async def ip(ctx):
+    await ctx.channel.send(requests.get('https://ipinfo.io/ip').text)
 
 
 @bot.command()
