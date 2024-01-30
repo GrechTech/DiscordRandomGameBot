@@ -181,6 +181,12 @@ def get_console_list():
     return discord.Embed(title="Console List", description=item_list, color=0xFF1694)
 
 
+def get_console_count(name):
+    for x in console_list:
+        if x.name.replace('.csv', '').lower() == name.lower():
+            return discord.Embed(title="Console Count", description=x.size, color=0xFF1694)
+
+
 # Function to retrieve list of valid console databases
 def get_consoles():
     # Retrieve consoles from Data folder

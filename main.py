@@ -83,6 +83,12 @@ async def snailcount(ctx, date_type='l'):
 async def consoles(ctx):
     print("Console Check")
     await ctx.channel.send(embed=console_bot.get_console_list())
+    
+    
+@bot.command()
+async def count(ctx, inpt: str):
+    print("Console Check")
+    await ctx.channel.send(embed=console_bot.get_console_count(inpt))
 
 
 @bot.command()
@@ -107,7 +113,8 @@ async def f1(ctx):
 async def f3(ctx):
     await ctx.channel.send(
         str(discord.utils.get(bot.emojis, name="f1")) + str(discord.utils.get(bot.emojis, name="f3")))
-    
+
+
 @bot.command()
 async def ip(ctx):
     await ctx.channel.send(requests.get('https://ipinfo.io/ip').text)
@@ -138,16 +145,16 @@ async def on_reaction_add(reaction, user):
 @bot.event
 async def on_message(message):
     if not check_reply(message):
-    # AUTOSNAIL
+        # AUTOSNAIL
         await autosnail.auto_snail_safe(message, bot)
-    # CONSOLE
+        # CONSOLE
         await console_bot.check_consoles(message)
-        
+
     if not message.author == bot.user:
-    # WORDLIST
-        await wordlist.word_list_check(message) 
-        
-    # BAN WORD
+        # WORDLIST
+        await wordlist.word_list_check(message)
+
+        # BAN WORD
     await banword.check_for_words(message, bot)
 
     # COMMANDS
