@@ -12,6 +12,7 @@ import wordlist
 import autosnail
 import banword
 import console_bot
+import motorsports
 
 TOKEN = ""  # From Config / token.txt
 
@@ -89,6 +90,12 @@ async def consoles(ctx):
 async def count(ctx, inpt: str):
     print("Console Check")
     await ctx.channel.send(embed=console_bot.get_console_count(inpt))
+    
+@bot.command()
+async def motorsports(ctx, inpt: str):
+    print("motorsports calendar")
+    embed = discord.Embed(title="Motorsports", url="https://www.bbc.co.uk/sport/motorsport/calendar/", description=motorsports.get_events_this_week(), color=0xFF0000)
+    await ctx.channel.send(embed=embed)
 
 
 @bot.command()
