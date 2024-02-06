@@ -96,7 +96,7 @@ async def motorsport(ctx):
     print("motorsports calendar")
     text_body = motorsportevents.get_events_this_week()
     print(text_body)
-    embed_output = discord.Embed(title="Motorsports", url="https://www.bbc.co.uk/sport/motorsport/calendar/", description=motorsportevents.get_events_this_week(), color=0xFF0000)
+    embed_output = discord.Embed(title="Motorsports", url="https://www.bbc.co.uk/sport/motorsport/calendar/", description=text_body, color=0xFF0000)
     await ctx.channel.send(embed=embed_output)
 
 

@@ -36,10 +36,13 @@ def get_events_this_week():
                     date = datetime.strptime(row['date'], '%Y-%m-%d %H:%M')
                     # Check if the date is in this week
                     if start_of_week <= date <= end_of_week:
+                        print("Found")
                         # Append the event to the list
                         events_this_week.append(row)
-    
+    if not events_this_week:
+        events_string = "Nothing this week"
     # Convert the list of events to a single string
-    events_string = '\n'.join([f"{event['name']} on {event['date'].strftime('%Y-%m-%d %H:%M')}" for event in events_this_week])
-    
+    else:
+        events_string = '\n'.join([f"{event['name']} on {event['date'].strftime('%Y-%m-%d %H:%M')}" for event in events_this_week])
+    print("Done")
     return events_string
