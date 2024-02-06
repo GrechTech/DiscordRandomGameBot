@@ -7,9 +7,11 @@ from datetime import datetime, timedelta
 dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 event_lists_path = os.path.join(dir_path, "Data", "Events")
 
-def get_events_this_week(folder_path):
+def get_events_this_week():
     # Get today's date
+    print("Start")
     today = datetime.utcnow()
+    print(today)
     
     # Calculate the start and end of the week (Monday to Sunday)
     start_of_week = today - timedelta(days=today.weekday())
@@ -19,17 +21,17 @@ def get_events_this_week(folder_path):
     events_this_week = []
     
     # Loop over all CSV files in the folder
-    for filename in os.listdir(folder_path):
+    for filename in os.listdir(event_lists_path):
         if filename.endswith('.csv'):
             # Open the CSV file
-            with open(os.path.join(folder_path, filename), 'r') as f:
+            with open(os.path.join(event_lists_path, filename), 'r') as f:
                 reader = csv.DictReader(f)
                 
                 # Loop over all rows in the CSV file
                 for row in reader:
                     # Convert the 'date' column to datetime
                     date = datetime.strptime(row['date'], '%Y-%m-%d %H:%M')
-                    
+                    print(date)
                     # Check if the date is in this week
                     if start_of_week <= date <= end_of_week:
                         # Append the event to the list
