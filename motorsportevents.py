@@ -34,6 +34,8 @@ def get_events_this_week():
                     print(row)
                     # Convert the 'date' column to datetime
                     date = datetime.strptime(row['date'], '%Y-%m-%d %H:%M')
+                    if not isinstance(date, datetime):
+                        print("DateError")
                     # Check if the date is in this week
                     if start_of_week <= date <= end_of_week:
                         print("Found")
@@ -43,6 +45,6 @@ def get_events_this_week():
         events_string = "Nothing this week"
     # Convert the list of events to a single string
     else:
-        events_string = '\n'.join([f"{event['name']} on {event['date'].strftime('%Y-%m-%d %H:%M')}" for event in events_this_week])
+        events_string = '\n'.join([f"-{filename.replace('.csv', '')}: {event['name']} on {event['date'].strftime('%A, %H:%M')}" if isinstance(event['date'], datetime)  else f"{event['name']} on {event['date']}" for event in events_this_week])
     print("Done")
     return events_string
