@@ -40,12 +40,12 @@ def get_events_this_week():
                     if start_of_week <= date <= end_of_week:
                         print("Found")
                         # Append the event to the list
-                        events_this_week.append([row['name'],date])
+                        events_this_week.append([filename.replace('.csv', '') + str(row['name']),date])
     if not events_this_week:
         events_string = "Nothing this week"
     # Convert the list of events to a single string
     else:
-        events_string = '\n'.join([f"-{filename.replace('.csv', '')}: {event[0]} on {event[1].strftime('%A, %H:%M')}"  \
-            if isinstance(event[1], datetime)  else f"-{filename.replace('.csv', '')}: {event[0]} on {event[1]}" for event in events_this_week])
+        events_string = '\n'.join([f"- {event[0]} on {event[1].strftime('%A, %H:%M')}"  \
+            if isinstance(event[1], datetime)  else f"-{event[0]} on {event[1]}" for event in events_this_week])
     print("Done")
     return events_string
